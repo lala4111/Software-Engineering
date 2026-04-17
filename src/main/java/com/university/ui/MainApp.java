@@ -35,7 +35,7 @@ public class MainApp extends Application {
 
         table.getColumns().addAll(idCol, titleCol);
 
-
+        Button trying = new Button("Trying");
         Button addBtn = new Button("Add Course");
         TextField titleField = new TextField();
         TextField seatsField = new TextField();
