@@ -35,7 +35,7 @@ public class MainApp extends Application {
 
         table.getColumns().addAll(idCol, titleCol);
 
-        Button trying = new Button("Trying");
+
         Button addBtn = new Button("Add Course");
         TextField titleField = new TextField();
         TextField seatsField = new TextField();
@@ -45,8 +45,7 @@ public class MainApp extends Application {
 
             new CourseService().addCourse(title, seats);
         });
-//push
-/*hhhh*/
+
 
         Button btn = new Button("Load Courses");
 
@@ -73,7 +72,8 @@ public class MainApp extends Application {
         addPerson.setOnAction(e -> {
             int id = Integer.parseInt(personId.getText());
             String ssn = personSsn.getText();
-            new PersonService().addPerson(id, ssn);
+            PersonService  service = new PersonService();
+            service.addPerson(id, ssn);
         });
 
 

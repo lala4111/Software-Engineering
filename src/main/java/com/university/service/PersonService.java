@@ -14,17 +14,17 @@ public class PersonService {
 
 
     public void addPerson(int id, String ssn) {
-        try (Connection conn = DBConnection.getConnection()) {
+        try (Connection connection = DBConnection.getConnection()) {
 
             String sql = "INSERT INTO person (id, ssn) VALUES (?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
 
-            stmt.setInt(1, id);
-            stmt.setString(2, ssn);
+            statement.setInt(1, id);
+            statement.setString(2, ssn);
 
-            stmt.executeUpdate();
+            statement.executeUpdate();
 
-            System.out.println("Course added!");
+            System.out.println("Person added!");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -35,16 +35,15 @@ public class PersonService {
 
         List<Person> people = new ArrayList<>();
 
-        try (Connection conn = DBConnection.getConnection()) {
+        try (Connection connection = DBConnection.getConnection()) {
 
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM person");
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
 
-            while (rs.next()) {
-                people.add(new Person(
-                        rs.getInt("id"),
-                        rs.getString("ssn")
-                ));
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String ssn = resultSet.getString("ssn");
+                people.add(new Person(id, ssn));
             }
 
         } catch (Exception e) {
