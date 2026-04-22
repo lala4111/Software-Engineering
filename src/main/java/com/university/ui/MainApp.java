@@ -76,6 +76,7 @@ public class MainApp extends Application {
             service.addPerson(id, ssn);
         });
 
+        // View Details & Enroll Button: separated??
 
 
         VBox root = new VBox(btn, table, table2,  titleField, seatsField, addBtn, loadPersonBtn,  addPerson,  personId, personSsn);
