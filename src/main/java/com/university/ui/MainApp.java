@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Dialog;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +36,10 @@ public class MainApp extends Application {
     VBox loginPage = new VBox(10);
     VBox coursesboxes = new VBox();
     HBox aboutFooter = new HBox(10);
-    Boolean loggedIn = false;
+    Boolean loggedIn = true;
     Boolean sucessfullEnrollment = true;
     Boolean isAdmin = false;
+    //https://coderanch.com/t/452522/java/set-size-JPanel-Screen-Size
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     int titleFontSize= (int) (screenSize.width *0.01);
     int textFontSize= (int) (screenSize.width *0.008);
@@ -74,20 +76,52 @@ public class MainApp extends Application {
                 enrollBtn.setOnAction(e -> {
                     //https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html
 
-                    if (sucessfullEnrollment) {JFrame frame = new JFrame("Sucessfully Enrolled");
-                        //String message = "You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days";
-                        JTextArea message = new JTextArea("You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days");
-                        message.setEditable(false);
-                        message.setLineWrap(true);
-                        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-                       //https://coderanch.com/t/339518/java/actual-screen-size-Start-menu
-                        message.setPreferredSize(new Dimension(dim.width/8,dim.height/8));
-                        //String messageLabel = message.getText();
-                        JOptionPane.showMessageDialog((frame),
-                                message ,"information", JOptionPane.INFORMATION_MESSAGE);}
-                    else {JFrame frame = new JFrame("Unsucessfull Enrollment");
-                        JOptionPane.showMessageDialog((frame),
-                                "The course quota is full","information", JOptionPane.INFORMATION_MESSAGE);}
+                    if (sucessfullEnrollment) {
+                        String message = "You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days";
+                        TextArea textArea = new TextArea(message);
+                        textArea.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
+                        textArea.setWrapText(true);
+
+                        textArea.setPrefSize(screenSize.width/7,screenSize.height/7);
+                        //https://code.makery.ch/blog/javafx-dialogs-official/
+                        Alert alert =  new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Sucessfully Enrolled");
+                        alert.setHeaderText("Successfully Enrolled");
+                        alert.setContentText("You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days");
+                        alert.showAndWait();
+                        DialogPane dialogPane = alert.getDialogPane();
+                        dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
+
+                    }else{
+                        String message= "The course quota is full";
+                        TextArea textArea = new TextArea(message);
+                        textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
+                        textArea.setWrapText(true);
+                        textArea.setPrefSize(screenSize.width/7,screenSize.height/7);
+                        Alert alert =  new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Unsucessfull Enrollment");
+                        alert.setHeaderText("Unsucessfull Enrollment");
+                        alert.setContentText(textArea.getText());
+                        alert.showAndWait();
+                        DialogPane dialogPane = alert.getDialogPane();
+                        dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;");
+
+
+                    }
+
+//                        JTextArea message = new JTextArea("You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days");
+//                        message.setEditable(false);
+//                        message.setLineWrap(true);
+//                        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+//
+//                       //https://coderanch.com/t/339518/java/actual-screen-size-Start-menu
+//                        message.setPreferredSize(new Dimension(dim.width/8,dim.height/8));
+//                        //String messageLabel = message.getText();
+//                        JOptionPane.showMessageDialog((frame),
+//                                message ,"information", JOptionPane.INFORMATION_MESSAGE);}
+//                    else {JFrame frame = new JFrame("Unsucessfull Enrollment");
+//                        JOptionPane.showMessageDialog((frame),
+//                                "The course quota is full","information", JOptionPane.INFORMATION_MESSAGE);}
 
 
 
@@ -171,13 +205,16 @@ public class MainApp extends Application {
         aboutPage.getChildren().add(new Label("information abouty the orgnaization"));
 
         homeBtn.setOnAction(e -> {
-            BorderPane pane = new BorderPane();
             aLlPages.setCenter(scrollPane);});
         aboutBtn.setOnAction(e -> {aLlPages.setCenter(aboutPage);});
         loginBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
         signupBtn.setOnAction(e -> {aLlPages.setCenter(signUpPage);});
         admindashboardBtn.setOnAction(e -> {aLlPages.setCenter(adminPage);});
         courseBtn.setOnAction(e -> {aLlPages.setCenter(scrollPane);});
+        footerHomeBtn.setOnAction(e -> {
+            aLlPages.setCenter(scrollPane);});
+        footerAboutBtn.setOnAction(e -> {aLlPages.setCenter(aboutPage);});
+        footerCourseBtn.setOnAction(e -> {aLlPages.setCenter(coursesPage);});
 
 
         scrollPane.setStyle("-fx-border-color: black;");
@@ -188,7 +225,7 @@ public class MainApp extends Application {
         aLlPages.setTop(header);
         aLlPages.setBottom(aboutFooter);
         //Scene scene = new Scene(root, 400, 300);
-        Scene scene = new Scene(aLlPages, 400, 300);
+        Scene scene = new Scene(aLlPages, 1200, 1000);
         stage.setScene(scene);
         stage.setTitle("Course System");
         stage.show();
