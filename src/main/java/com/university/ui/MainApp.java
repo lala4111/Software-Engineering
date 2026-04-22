@@ -109,21 +109,6 @@ public class MainApp extends Application {
 
                     }
 
-//                        JTextArea message = new JTextArea("You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days");
-//                        message.setEditable(false);
-//                        message.setLineWrap(true);
-//                        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-//
-//                       //https://coderanch.com/t/339518/java/actual-screen-size-Start-menu
-//                        message.setPreferredSize(new Dimension(dim.width/8,dim.height/8));
-//                        //String messageLabel = message.getText();
-//                        JOptionPane.showMessageDialog((frame),
-//                                message ,"information", JOptionPane.INFORMATION_MESSAGE);}
-//                    else {JFrame frame = new JFrame("Unsucessfull Enrollment");
-//                        JOptionPane.showMessageDialog((frame),
-//                                "The course quota is full","information", JOptionPane.INFORMATION_MESSAGE);}
-
-
 
                 });
                 enrollBtn.setStyle(primaryBtnStlye);
