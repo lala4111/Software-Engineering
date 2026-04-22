@@ -2,6 +2,7 @@ module org.example.open_scholars {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
+    requires java.desktop;
 
 
     opens org.example.open_scholars to javafx.fxml;

@@ -28,7 +28,9 @@ public class CourseService {
             while (result.next()) {
                 int course_id = result.getInt("id");//retrieve by column name
                 String course_name = result.getString("title");//retrieve by column name
-                Course course = new Course(course_id, course_name);
+                String course_description = result.getString("description");
+                int seat_number = result.getInt("seats");
+                Course course = new Course(course_id, course_name, seat_number, course_description);
                 courses.add(course);
             }
         } catch (Exception e) {
@@ -36,14 +38,15 @@ public class CourseService {
         }
         return courses;
     }
-    public void addCourse(String title, int seat) {
+    public void addCourse(String title, int seat, String description) {
         try (Connection connection = DBConnection.getConnection()) {
             //? to be determined later
-            String insertStatement = "INSERT INTO courses (title, seats) VALUES (?, ?)";
+            String insertStatement = "INSERT INTO courses (title, seats, description) VALUES (?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(insertStatement);
 
             preparedStatement.setString(1, title);// 1 first ? This would set title
             preparedStatement.setInt(2, seat);// 2 second ? This would set seat
+            preparedStatement.setString(3, description);
             preparedStatement.executeUpdate();/*Returns the number of rows affected by the execution of the SQL statement. Use this method to execute SQL statements for which you expect to get a number of rows affected - for example, an INSERT, UPDATE, or DELETE statement.*/
 
             System.out.println("Course added!");
