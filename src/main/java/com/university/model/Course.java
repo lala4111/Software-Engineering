@@ -4,12 +4,15 @@ public class Course {
 
     private int id;
     private String title;
-    private int seats;
+    private String description;
+    private int  seat;
 
-    public Course(int id, String title, int course_seats) {
+
+    public Course(int id, String title,int seat,  String description) {
         this.id = id;
         this.title = title;
-        this.seats = seats;
+        this.description = description;
+        this.seat = seat;
     }
 
     public int getId() {
@@ -19,6 +22,8 @@ public class Course {
     public String getTitle() {
         return title;
     }
-
-    public int getSeats() { return seats; }
+    public String getDescription() {return description;}
+    public int getSeatNum(){
+        return seat;
+    }
 }
