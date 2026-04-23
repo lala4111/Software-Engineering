@@ -462,7 +462,7 @@ public class MainApp extends Application {
         aLlPages.setTop(header);
         aLlPages.setBottom(aboutFooter);
         //Scene scene = new Scene(root, 400, 300);
-        Scene scene = new Scene(aLlPages, 1200, 1000);
+        Scene scene = new Scene(aLlPages, 1000, 800);
         stage.setScene(scene);
         stage.setTitle("Course System");
         stage.show();
