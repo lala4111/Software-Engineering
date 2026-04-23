@@ -156,6 +156,7 @@ public class MainApp extends Application {
         Label userId = new Label("User ID: "+ "tempId111");
         userId.setStyle(headerButtonStlye );
 
+        // View Details & Enroll Button: separated??
 
 
         Button footerHomeBtn = new Button("Home");
