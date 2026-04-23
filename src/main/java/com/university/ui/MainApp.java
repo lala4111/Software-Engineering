@@ -326,7 +326,8 @@ public class MainApp extends Application {
                 enrollBtn.setOnAction(e -> {
                     //https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html
 
-                    if (sucessfullEnrollment) {
+                //    if (sucessfullEnrollment) {
+                        if (sucessfullEnrollment) {
                         String message = "You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days";
                         TextArea textArea = new TextArea(message);
                         textArea.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
