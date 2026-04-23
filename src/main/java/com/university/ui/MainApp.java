@@ -17,7 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.awt.*;
+//import java.awt.*;
 import java.util.List;
 
 import javafx.geometry.Pos;
@@ -25,6 +25,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Screen;
 
 public class MainApp extends Application {
     VBox homePage = new VBox(10);
@@ -39,9 +40,10 @@ public class MainApp extends Application {
     Boolean sucessfullEnrollment = true;
     Boolean isAdmin = true;
     //https://coderanch.com/t/452522/java/set-size-JPanel-Screen-Size
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    int titleFontSize= (int) (screenSize.width *0.01);
-    int textFontSize= (int) (screenSize.width *0.008);
+    //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    double screenSize = Screen.getPrimary().getBounds().getWidth();
+    double titleFontSize= (int) (screenSize*0.01);
+    double textFontSize= (int) (screenSize *0.008);
     Button logOutButton = new Button("Log Out");
 
 
@@ -326,7 +328,7 @@ public class MainApp extends Application {
                         textArea.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
                         textArea.setWrapText(true);
 
-                        textArea.setPrefSize(screenSize.width/7,screenSize.height/7);
+                        textArea.setPrefSize(screenSize/7,screenSize/7);
                         //https://code.makery.ch/blog/javafx-dialogs-official/
                         Alert alert =  new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Sucessfully Enrolled");
@@ -341,7 +343,7 @@ public class MainApp extends Application {
                         TextArea textArea = new TextArea(message);
                         textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
                         textArea.setWrapText(true);
-                        textArea.setPrefSize(screenSize.width/7,screenSize.height/7);
+                        textArea.setPrefSize(screenSize/7,screenSize/7);
                         Alert alert =  new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Unsucessfull Enrollment");
                         alert.setHeaderText("Unsucessfull Enrollment");
