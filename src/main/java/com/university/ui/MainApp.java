@@ -41,13 +41,13 @@ public class MainApp extends Application {
     Boolean isAdmin = true;
     //https://coderanch.com/t/452522/java/set-size-JPanel-Screen-Size
     //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    //double screenSize = Screen.getPrimary().getBounds().getWidth();
-    double screenSize = 1100;
+    double screenSize = Screen.getPrimary().getBounds().getWidth();
+    //double screenSize = 1100;
 
-    //double titleFontSize= (int) (screenSize*0.01);
-    //double textFontSize= (int) (screenSize *0.008);
-    int titleFontSize= 16;
-    int textFontSize= 24;
+    double titleFontSize= (int) (screenSize*0.01);
+    double textFontSize= (int) (screenSize *0.008);
+    //int titleFontSize= 16;
+    //int textFontSize= 24;
     Button logOutButton = new Button("Log Out");
 
 
