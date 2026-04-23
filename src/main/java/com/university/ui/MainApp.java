@@ -1,7 +1,9 @@
 package com.university.ui;
 
 import com.university.model.Course;
+import com.university.model.Enrollment;
 import com.university.service.CourseService;
+import com.university.service.EnrollmentService;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -16,8 +18,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-//import java.awt.*;
 import java.util.List;
 
 import javafx.geometry.Pos;
@@ -39,11 +39,12 @@ public class MainApp extends Application {
     Boolean loggedIn = true;
     Boolean sucessfullEnrollment = true;
     Boolean isAdmin = true;
-    //https://coderanch.com/t/452522/java/set-size-JPanel-Screen-Size
-    //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
+    int tempEnrollment_id = 1;
+    int numberOfEnrollments = 0;
+
     double screenSize = Screen.getPrimary().getBounds().getWidth();
     //double screenSize = 1100;
-
     double titleFontSize= (int) (screenSize*0.01);
     double textFontSize= (int) (screenSize *0.008);
     //int titleFontSize= 16;
@@ -71,7 +72,6 @@ public class MainApp extends Application {
 
         tabs.getTabs().add(t1);
 
-
         Tab t2 = new Tab();
         t2.setText("Course Dashboard");
         t2.setClosable(false);
@@ -79,18 +79,8 @@ public class MainApp extends Application {
         tabs.getTabs().add(t2);
 
 
-
-
         return tabs;
     }
-
-
-
-
-
-
-
-
 
     public Pane tab1(){
         Text id = new Text("Course ID");
@@ -153,8 +143,6 @@ public class MainApp extends Application {
 
 
 
-
-
                 tp1.setVgap(10);
                 tp1.setHgap(10);
                 tp1.setPrefColumns(3);
@@ -174,7 +162,6 @@ public class MainApp extends Application {
         clear.setOnAction(e->{
 
         });
-
 
 
         GridPane gp = new GridPane();
@@ -199,8 +186,6 @@ public class MainApp extends Application {
         gp.setVgap(10);
         gp.setHgap(10);
         gp.setPadding(new Insets(30));
-
-
 
         VBox vb1 = new VBox();
         vb1.getChildren().addAll(description,ta_description);
@@ -293,7 +278,6 @@ public class MainApp extends Application {
         gp.setHgap(5);
         gp.setAlignment(Pos.CENTER);
 
-
         Scene scene = new Scene(gp, 400, 400);
         stage.setScene(scene);
         stage.setTitle("Course Detail");
@@ -323,11 +307,24 @@ public class MainApp extends Application {
                 Button enrollBtn = new Button("Enroll");
                 Button loginToEnrollBtn = new Button("Login to Enrollment");
                 enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                enrollBtn.setOnAction(e -> {
-                    //https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html
+                Course currentCourse = courses.get(i);
+                int currentCourseId= courses.get(i).getId();
 
-                //    if (sucessfullEnrollment) {
-                        if (sucessfullEnrollment) {
+            int finalI = i;
+            enrollBtn.setOnAction(e -> {
+                EnrollmentService enrollmentService= new EnrollmentService();
+                int enrolledStudentsNum= enrollmentService.getCourseEnrollmentsCount(currentCourseId);
+                Boolean isFull= enrolledStudentsNum >= currentCourse.getSeatNum();
+                Boolean sucessfulEnrolled=false;
+                if( !isFull){
+
+                     sucessfulEnrolled =enrollmentService.enrollStudent(tempStudent_id,currentCourseId);
+
+                    System.out.println(currentCourseId);
+                }
+        //    if (sucessfullEnrollment) {
+                        if (sucessfulEnrolled ) {
+
                         String message = "You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days";
                         TextArea textArea = new TextArea(message);
                         textArea.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
@@ -360,7 +357,6 @@ public class MainApp extends Application {
 
                     }
 
-
                 });
                 enrollBtn.setStyle(primaryBtnStlye);
 
@@ -384,7 +380,6 @@ public class MainApp extends Application {
         }
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(coursesboxes);
-
         HBox header = new HBox();
         header.setSpacing(20);
         header.setPadding(new Insets(10,10,30,10));
@@ -408,7 +403,7 @@ public class MainApp extends Application {
         userId.setStyle(headerButtonStlye );
 
         // View Details & Enroll Button: separated??
-
+        // view and enroll in the same course box
 
         Button footerHomeBtn = new Button("Home");
         footerHomeBtn.setStyle(headerButtonStlye);
