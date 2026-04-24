@@ -4,6 +4,8 @@ import com.university.model.Course;
 import com.university.model.Enrollment;
 import com.university.service.CourseService;
 import com.university.service.EnrollmentService;
+import com.university.service.LogInService;
+import com.university.service.RegisterService;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -36,9 +38,9 @@ public class MainApp extends Application {
     VBox loginPage = new VBox(10);
     VBox coursesboxes = new VBox();
     HBox aboutFooter = new HBox(10);
-    Boolean loggedIn = true;
+    Boolean loggedIn = false;
     Boolean sucessfullEnrollment = true;
-    Boolean isAdmin = true;
+    Boolean isAdmin = false;
     int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
     int tempEnrollment_id = 1;
     int numberOfEnrollments = 0;
@@ -429,9 +431,57 @@ public class MainApp extends Application {
             }
         }
 
+// ADDED BY ARNAS ON 24.04.2026 ============================================================================
 
-        loginPage.getChildren().add(new Label("Login page, user enters his username and password"));
-        signUpPage.getChildren().add(new Label("signup page, user enters his username and password and other data to create new account"));
+        // loginpage and signuppage...
+        TextField usernameFd = new TextField();
+        usernameFd.setPromptText("Username");
+        TextField passwordFd = new TextField(); // Can be set to PasswordField
+        passwordFd.setPromptText("Password");
+        Button logbtn = new Button("Log in");
+
+        logbtn.setOnAction(e->{ // log in button
+            loggedIn = LogInService.CheckPassword(usernameFd.getText(), passwordFd.getText()); // TODO: make it into a function, check values
+            if (loggedIn == true){
+                header.getChildren().clear();
+                header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId, logOutButton);
+                aLlPages.setCenter(scrollPane);
+                //courseBox.getChildren().clear();
+                //courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
+            }
+        });
+
+        loginPage.getChildren().addAll(usernameFd, passwordFd, logbtn); // creating the login page
+
+        TextField newUsername = new TextField();
+        newUsername.setPromptText("Username");
+        TextField newPassword = new TextField();
+        newPassword.setPromptText("Password");
+        TextField firstName = new TextField();
+        firstName.setPromptText("First name");
+        TextField surName = new TextField();
+        surName.setPromptText("Surname");
+        TextField phone = new TextField();
+        phone.setPromptText("Phone");
+        TextField email = new TextField();
+        email.setPromptText("Email");
+
+        Button regBtn = new Button("Register"); // button to for registering
+
+        regBtn.setOnAction(e->{ //TODO: check values, double password field.
+            RegisterService.AddAccount(newUsername.getText(),newPassword.getText(),firstName.getText(),surName.getText(),phone.getText(),email.getText());
+            loggedIn = LogInService.CheckPassword(newUsername.getText(), newPassword.getText());
+            if (loggedIn == true) {
+                header.getChildren().clear();
+                header.getChildren().addAll(homeBtn, aboutBtn, courseBtn, userId, logOutButton);
+                aLlPages.setCenter(scrollPane);
+            }
+        });
+
+        signUpPage.getChildren().addAll(newUsername,newPassword,firstName,surName,phone,email,regBtn);
+
+// ================================================================================================================
+
          adminPage.getChildren().add(tabs);
         //adminPage.getChildren().add(new Label("for admins to manage courses and view and manage students registerations"));
         coursesPage.getChildren().add(new Label("courses page, user view courses"));
