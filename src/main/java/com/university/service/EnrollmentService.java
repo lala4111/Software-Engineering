@@ -13,13 +13,15 @@ public class EnrollmentService {
     int enrollmentCount;
 
     // returns a boolean (true/false) indicating success
-    public boolean enrollStudent(int personId, int courseId) {
-        String sql = "INSERT INTO enrollment (id_student, id_course) VALUES (?, ?)";
+    public boolean enrollStudent(int personId, int courseId, Enrollment.PaymentStatus payment_status, Enrollment.EnrollmentStatus enrollment_status) {
+        String sql = "INSERT INTO enrollment (id_student, id_course, payment_status, enrollment_status) VALUES (?, ?, ?, ?)";
         // ? acts as placeholders for the actual ID
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, personId);
             preparedStatement.setInt(2, courseId);
+            preparedStatement.setString(3, payment_status.name());
+            preparedStatement.setString(4, enrollment_status.name());
             return preparedStatement.executeUpdate() > 0;
         } catch (Exception e) {
             System.err.println("Enrollment failed: " + e.getMessage());
@@ -34,8 +36,10 @@ public class EnrollmentService {
             while (result.next()) {
                 int enrollment_id = result.getInt("enrollment_id");
                 int courseId= result.getInt("id_course");
-                int studentId = result.getInt("student_id");
-                Enrollment enrollment= new Enrollment(courseId,studentId);
+                int studentId = result.getInt("id_student");
+                Enrollment.PaymentStatus paymentStatus = Enrollment.PaymentStatus.valueOf(result.getString("payment_status"));
+                Enrollment.EnrollmentStatus enrollmentStatus = Enrollment.EnrollmentStatus.valueOf(result.getString("enrollment_status"));
+                Enrollment enrollment= new Enrollment(courseId, studentId,  paymentStatus, enrollmentStatus);
                 enrollments.add(enrollment);
             }
 
@@ -63,12 +67,14 @@ public class EnrollmentService {
     }
 
 
-    public void addEnrollment(int id_student, int id_course) {
+    public void addEnrollment(int id_student, int id_course, Enrollment.PaymentStatus payment_status, Enrollment.EnrollmentStatus enrollment_status) {
         try(Connection connection= DBConnection.getConnection()) {
-            String sql = "INSERT INTO enrollment(id_student,id_course) VALUES (?, ?)";
+            String sql = "INSERT INTO enrollment(id_student,id_course, paymnet_status, enrollment_status) VALUES (?, ?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, id_student);
             preparedStatement.setInt(2, id_course);
+            preparedStatement.setString(3, payment_status.name());
+            preparedStatement.setString(4, enrollment_status.name());
             preparedStatement.execute();
 
         } catch (Exception e) {
