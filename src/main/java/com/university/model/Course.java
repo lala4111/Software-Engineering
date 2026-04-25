@@ -27,6 +27,20 @@ public class Course {
         this.description = description;
         this.seat = seat;
     }
+
+    public Course(int id, String title, String description, int seat, double fee, String schedule, String category, int credits){
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.seat = seat;
+        this.fee = fee;
+        this.schedule = schedule;
+        this.level = level;
+        this.category = category;
+        this.credits = credits;
+
+    }
+
     public Course(int id, String title, String description, int seat, double fee, String schedule, Level level, String category, int credits){
         this.id = id;
         this.title = title;

@@ -32,12 +32,12 @@ public class CourseService {
                 int seat_number = result.getInt("seat");
                 double  fee=result.getDouble("fee");
                 String schedule= result.getString("schedule");
-                Course.Level level=Course.Level.valueOf(result.getString("level"));
+                //Course.Level level=Course.Level.valueOf(result.getString("level"));
                 String category=result.getString("category");
                 int credits=result.getInt("credits");
 
-                //Course course = new Course(course_id, course_name, seat_number, course_description, );
-                Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule, level, category, credits );
+                Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule, category, credits );
+                //Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule, level, category, credits );
                 courses.add(course);
             }
         } catch (Exception e) {
@@ -45,6 +45,29 @@ public class CourseService {
         }
         return courses;
     }
+
+    public void addCourse(String title, String description, int seat, double fee,  String category,int credits, String schedule) {
+        try (Connection connection = DBConnection.getConnection()) {
+            //? to be determined later
+            String insertStatement = "INSERT INTO course (title ,seat, description, fee, category,credits,schedule) VALUES (?, ?, ?,?,?,?,?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(insertStatement);
+
+            preparedStatement.setString(1, title);// 1 first ? This would set title
+            preparedStatement.setInt(2, seat);// 2 second ? This would set seat
+            preparedStatement.setString(3, description);
+            preparedStatement.setDouble(4, fee);
+            preparedStatement.setString(5, category);
+            preparedStatement.setInt(6, credits);
+            preparedStatement.setString(7, schedule);
+            preparedStatement.executeUpdate();/*Returns the number of rows affected by the execution of the SQL statement. Use this method to execute SQL statements for which you expect to get a number of rows affected - for example, an INSERT, UPDATE, or DELETE statement.*/
+
+            System.out.println("Course added!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void addCourse(String title, String description, int seat, double fee, String schedule, Course.Level level, String category, int credits) {
         try (Connection connection = DBConnection.getConnection()) {
             //? to be determined later
