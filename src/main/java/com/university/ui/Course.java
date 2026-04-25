@@ -1,4 +1,4 @@
-package org.example.open_scholars;
+package com.university.ui;
 
 public class Course {
     private int course_id;
@@ -11,7 +11,7 @@ public class Course {
     private int credits;
     private String schedule;
     public static int registration_num;
-
+    //
 
     public Course(int c, String n, String d, int ca, int fe, String l, String cat, int cred, String sce){
         course_id = c;

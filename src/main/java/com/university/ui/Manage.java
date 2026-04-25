@@ -1,7 +1,5 @@
 package com.university.ui;
 
-import org.example.open_scholars.Course;
-
 import java.util.ArrayList;
 
 public class Manage {

@@ -1,7 +1,6 @@
 package com.university.ui;
 
 import com.university.model.Course;
-import com.university.model.Enrollment;
 import com.university.service.CourseService;
 import com.university.service.EnrollmentService;
 import javafx.application.Application;
@@ -117,7 +116,7 @@ public class MainApp extends Application {
         add.setOnAction(e->{
             try{
 
-                org.example.open_scholars.Course one = new org.example.open_scholars.Course(
+                com.university.ui.Course one = new com.university.ui.Course(
                         Integer.parseInt(tx_id.getText()),
                         tx_name.getText(),ta_description.getText(),
                         Integer.parseInt(tx_capacity.getText()),
@@ -215,7 +214,7 @@ public class MainApp extends Application {
         return tp1;
     }
 
-    public void getDetail(org.example.open_scholars.Course p){
+    public void getDetail(com.university.ui.Course p){
         Stage stage = new Stage();
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(20));
