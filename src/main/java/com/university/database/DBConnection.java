@@ -12,6 +12,4 @@ public class DBConnection {
         Connection connection= DriverManager.getConnection(URL, USER, PASSWORD);
         return connection;
     }
-
-
 }

@@ -3,6 +3,7 @@ module org.example.open_scholars {
     requires javafx.fxml;
     requires java.sql;
     requires java.desktop;
+    //requires jdk.jconsole;
 
 
     opens org.example.open_scholars to javafx.fxml;

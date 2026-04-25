@@ -42,8 +42,8 @@ public class PersonService {
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
-                String ssn = resultSet.getString("ssn");
-                people.add(new Person(id, ssn));
+                String username = resultSet.getString("username");
+                people.add(new Person(id, username));
             }
 
         } catch (Exception e) {

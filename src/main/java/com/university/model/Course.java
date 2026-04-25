@@ -6,10 +6,7 @@ public class Course {
     private String title;
     private String description;
     private int  seat;
-    private int course_id;
-    private String name;
-    private int capacity;
-    private int fee;
+    private double fee;
     private String level;
     private String category;
     private int credits;
@@ -23,17 +20,18 @@ public class Course {
         this.description = description;
         this.seat = seat;
     }
-    public Course(int c, String n, String d, int ca, int fe, String l, String cat, int cred, String sce){
-        course_id = c;
-        name = n;
-        description = d;
-        capacity = ca;
-        fee = fe;
-        level = l;
-        category = cat;
-        credits = cred;
-        schedule = sce;
+    public Course(int id, String title, String description, int seat, double fee, String level, String category, int credits, String schedule){
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.seat = seat;
+        this.fee = fee;
+        this.level = level;
+        this.category = category;
+        this.credits = credits;
+        this.schedule = schedule;
     }
+
 
 
     public int getId() {

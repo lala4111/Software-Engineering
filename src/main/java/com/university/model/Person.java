@@ -3,11 +3,14 @@ package com.university.model;
 public class Person {
     private int id;
 
-    private String ssn;
+    private String username;
     public Person() {}
 
     public Person(int id, String ssn) {
         this.id = id;
-        this.ssn = ssn;
+        this.username = ssn;
+    }
+    public int getId() {
+        return id;
     }
 }
