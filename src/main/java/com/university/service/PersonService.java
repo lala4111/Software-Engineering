@@ -13,14 +13,20 @@ import java.util.List;
 public class PersonService {
 
 
-    public void addPerson(int id, String ssn) {
+    public void addPerson(int id, String username, String password, String firstName, String surName, String phone, String email, Person.Role role) {
         try (Connection connection = DBConnection.getConnection()) {
 
-            String sql = "INSERT INTO person (id, ssn) VALUES (?, ?)";
+            String sql = "INSERT INTO person (id, username, password, firstName, surName, phone, email, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
 
             statement.setInt(1, id);
-            statement.setString(2, ssn);
+            statement.setString(2, username);
+            statement.setString(3, password);
+            statement.setString(4, firstName);
+            statement.setString(5, surName);
+            statement.setString(6, phone);
+            statement.setString(7, email);
+            statement.setString(8, role.name());
 
             statement.executeUpdate();
 
@@ -43,7 +49,13 @@ public class PersonService {
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String username = resultSet.getString("username");
-                people.add(new Person(id, username));
+                String password = resultSet.getString("password");
+                String firstName = resultSet.getString("firstName");
+                String surName = resultSet.getString("surName");
+                String phone = resultSet.getString("phone");
+                String email = resultSet.getString("email");
+                Person.Role role = Person.Role.valueOf(resultSet.getString("role"));
+                people.add(new Person(id, username,  password, firstName, surName, phone, email, role));
             }
 
         } catch (Exception e) {

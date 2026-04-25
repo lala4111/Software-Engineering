@@ -318,7 +318,7 @@ public class MainApp extends Application {
                 Boolean sucessfulEnrolled=false;
                 if( !isFull){
 
-                     sucessfulEnrolled =enrollmentService.enrollStudent(tempStudent_id,currentCourseId);
+                     sucessfulEnrolled =enrollmentService.enrollStudent(tempStudent_id,currentCourseId,Enrollment.PaymentStatus.unpayed, Enrollment.EnrollmentStatus.pending);
 
                     System.out.println(currentCourseId);
                 }
