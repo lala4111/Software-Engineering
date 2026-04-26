@@ -66,7 +66,7 @@ public class EnrollmentService {
         return enrollmentCount;
     }
 
-    public void addEnrollment(int id_student, int id_course) {
+    /*public void addEnrollment(int id_student, int id_course) {
         try(Connection connection= DBConnection.getConnection()) {
             String sql = "INSERT INTO enrollment(id_student,id_course) VALUES (?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -79,7 +79,7 @@ public class EnrollmentService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
 
 
     public void addEnrollment(int id_student, int id_course, Enrollment.PaymentStatus payment_status, Enrollment.EnrollmentStatus enrollment_status) {

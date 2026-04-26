@@ -18,10 +18,6 @@ public class Enrollment {
         dropped
     }
 
-    public Enrollment(int id_course, int id_student) {
-        this.id_course = id_course;
-        this.id_student = id_student;
-    }
 
     public  Enrollment(int id_course, int id_student, PaymentStatus payment_status, EnrollmentStatus enrollment_status) {
         this.id_course = id_course;
@@ -38,4 +34,9 @@ public class Enrollment {
     }
     public PaymentStatus getPayment_status() { return payment_status; }
     public EnrollmentStatus getEnrollment_status() { return enrollment_status; }
+
+    /*public Enrollment(int id_course, int id_student) {
+        this.id_course = id_course;
+        this.id_student = id_student;
+    }*/
 }
