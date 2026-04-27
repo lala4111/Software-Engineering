@@ -413,7 +413,7 @@ public class MainApp extends Application {
         loginBtn.setStyle(headerButtonStlye );
         Button signupBtn = new Button("Signup");
         signupBtn.setStyle(headerButtonStlye );
-        Label userId = new Label("User ID: "+ "tempId111");
+        Label userId = new Label("User ID: "+ tempStudent_id);
         userId.setStyle(headerButtonStlye );
 
         // View Details & Enroll Button: separated??
@@ -455,6 +455,8 @@ public class MainApp extends Application {
         logbtn.setOnAction(e->{ // log in button
             loggedIn = LogInService.CheckPassword(usernameFd.getText(), passwordFd.getText()); // TODO: make it into a function, check values
             if (loggedIn == true){
+                tempStudent_id = LogInService.GetID(usernameFd.getText());
+                System.out.println(tempStudent_id + " ID UPDATED");
                 header.getChildren().clear();
                 header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId, logOutButton);
                 aLlPages.setCenter(scrollPane);
@@ -484,6 +486,7 @@ public class MainApp extends Application {
             RegisterService.AddAccount(newUsername.getText(),newPassword.getText(),firstName.getText(),surName.getText(),phone.getText(),email.getText());
             loggedIn = LogInService.CheckPassword(newUsername.getText(), newPassword.getText());
             if (loggedIn == true) {
+                tempStudent_id = LogInService.GetID(newUsername.getText());
                 header.getChildren().clear();
                 header.getChildren().addAll(homeBtn, aboutBtn, courseBtn, userId, logOutButton);
                 aLlPages.setCenter(scrollPane);
