@@ -320,13 +320,12 @@ public class MainApp extends Application {
                 Boolean sucessfulEnrolled=false;
                 if( !isFull){
 
-                     sucessfulEnrolled =enrollmentService.enrollStudent(tempStudent_id,currentCourseId);
+                     sucessfulEnrolled =enrollmentService.enrollStudent(tempStudent_id,currentCourseId,Enrollment.PaymentStatus.unpayed, Enrollment.EnrollmentStatus.pending);
 
                     System.out.println(currentCourseId);
                 }
         //    if (sucessfullEnrollment) {
                         if (sucessfulEnrolled ) {
-
                         String message = "You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days";
                         TextArea textArea = new TextArea(message);
                         textArea.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
@@ -342,20 +341,33 @@ public class MainApp extends Application {
                         DialogPane dialogPane = alert.getDialogPane();
                         dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
 
-                    }else{
-                        String message= "The course quota is full";
-                        TextArea textArea = new TextArea(message);
-                        textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                        textArea.setWrapText(true);
-                        textArea.setPrefSize(screenSize/7,screenSize/7);
-                        Alert alert =  new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Unsucessfull Enrollment");
-                        alert.setHeaderText("Unsucessfull Enrollment");
-                        alert.setContentText(textArea.getText());
-                        alert.showAndWait();
-                        DialogPane dialogPane = alert.getDialogPane();
-                        dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;");
+                    } else if (isFull) {
+                            String message= "The course quota is full";
+                            TextArea textArea = new TextArea(message);
+                            textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
+                            textArea.setWrapText(true);
+                            textArea.setPrefSize(screenSize/7,screenSize/7);
+                            Alert alert =  new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Unsucessfull Enrollment");
+                            alert.setHeaderText("Unsucessfull Enrollment");
+                            alert.setContentText(textArea.getText());
+                            alert.showAndWait();
+                            DialogPane dialogPane = alert.getDialogPane();
+                            dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;");
 
+                        } else{
+                            String message= "You have been already enrolled for this course";
+                            TextArea textArea = new TextArea(message);
+                            textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
+                            textArea.setWrapText(true);
+                            textArea.setPrefSize(screenSize/7,screenSize/7);
+                            Alert alert =  new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Unsucessfull Enrollment");
+                            alert.setHeaderText("Unsucessfull Enrollment");
+                            alert.setContentText(textArea.getText());
+                            alert.showAndWait();
+                            DialogPane dialogPane = alert.getDialogPane();
+                            dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;");
 
                     }
 
