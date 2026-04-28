@@ -474,17 +474,13 @@ public class MainApp extends Application {
                 System.out.println(tempStudent_id + " ID UPDATED");
                 header.getChildren().clear();
                 loggedIn= true;
-
                 scrollPane.setContent(coursesboxes);
-                //coursesboxes.getChildren().clear();
 
                 header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId, logOutButton);
                 VBox coursesDiaplayList= getCoursesDiaplayList();
                 scrollPane.setContent(coursesDiaplayList);
                 aLlPages.setCenter(scrollPane);
 
-                //courseBox.getChildren().clear();
-                //courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
             }
         });
 
@@ -510,11 +506,15 @@ public class MainApp extends Application {
             loggedIn = LogInService.CheckPassword(newUsername.getText(), newPassword.getText());
             if (loggedIn == true) {
                 tempStudent_id = LogInService.GetID(newUsername.getText());
+                userId.setText("User ID: "+ tempStudent_id);
                 header.getChildren().clear();
                 header.getChildren().addAll(homeBtn, aboutBtn, courseBtn, userId, logOutButton);
+                VBox coursesDiaplayList= getCoursesDiaplayList();
+                scrollPane.setContent(coursesDiaplayList);
                 aLlPages.setCenter(scrollPane);
             }
         });
+
 
         signUpPage.getChildren().addAll(newUsername,newPassword,firstName,surName,phone,email,regBtn);
 
