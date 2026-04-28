@@ -368,7 +368,7 @@ public class MainApp extends Application {
 
             loginToEnrollBtn.setStyle(primaryBtnStlye);
 
-            Label quota= new Label("Course Quota "+String.valueOf(courses.get(i).getSeatNum()));
+            Label quota= new Label("Remaining seats "+String.valueOf(courses.get(i).getSeatNum()));
             quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
             if(loggedIn){
                 courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
