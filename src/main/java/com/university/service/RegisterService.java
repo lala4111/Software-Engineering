@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 public class RegisterService {
     public static void AddAccount(String userr, String pass, String name, String sur, String num, String mail){
         try (Connection con = DBConnection.getConnection()) {
-            String task = "INSERT INTO person (username, password, name, surname, phone, email, role) VALUES (?,?,?,?,?,?,?)";
+            String task = "INSERT INTO person (username, password, firstName, surname, phone, email, role) VALUES (?,?,?,?,?,?,?)";
             PreparedStatement ps = con.prepareStatement(task);
             ps.setString(1, userr);
             ps.setString(2, pass);

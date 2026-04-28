@@ -20,6 +20,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.geometry.Pos;
@@ -30,6 +32,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 
 public class MainApp extends Application {
+    BorderPane aLlPages= new BorderPane();
     VBox homePage = new VBox(10);
     VBox aboutPage = new VBox(10);
     VBox adminPage = new VBox(10);
@@ -53,6 +56,7 @@ public class MainApp extends Application {
     //int titleFontSize= 16;
     //int textFontSize= 24;
     Button logOutButton = new Button("Log Out");
+    List<Course> courses = new CourseService().getCourses();
 
 
 
@@ -304,31 +308,24 @@ public class MainApp extends Application {
     }
 
 
-    @Override
-    public void start(Stage stage) {
-        //rara part
-        TabPane tabs = tb();
-
-        List<Course> courses = new CourseService().getCourses();
-
-
-        BorderPane aLlPages= new BorderPane();
+    VBox getCoursesDiaplayList(){
+        coursesboxes.getChildren().clear();
 
         for(int i =0; i < courses.size(); i++){
-                VBox courseBox = new VBox(10);
-                Label courseName = new Label("Course Name"+courses.get(i).getTitle());
-                courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
+            VBox courseBox = new VBox(10);
+            Label courseName = new Label("Course Name"+courses.get(i).getTitle());
+            courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
 
-                TextArea courseDescription = new TextArea("Description: "+courses.get(i).getDescription());
-                courseDescription.setWrapText(true);
-                courseDescription.setMaxWidth(Double.MAX_VALUE);
-                courseDescription.setEditable(false);
-                courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                Button enrollBtn = new Button("Enroll");
-                Button loginToEnrollBtn = new Button("Login to Enrollment");
-                enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                Course currentCourse = courses.get(i);
-                int currentCourseId= courses.get(i).getId();
+            TextArea courseDescription = new TextArea("Description: "+courses.get(i).getDescription());
+            courseDescription.setWrapText(true);
+            courseDescription.setMaxWidth(Double.MAX_VALUE);
+            courseDescription.setEditable(false);
+            courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
+            Button enrollBtn = new Button("Enroll");
+            Button loginToEnrollBtn = new Button("Login to Enrollment");
+            enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
+            Course currentCourse = courses.get(i);
+            int currentCourseId= courses.get(i).getId();
 
             int finalI = i;
             enrollBtn.setOnAction(e -> {
@@ -367,28 +364,50 @@ public class MainApp extends Application {
                 }
             });
 
-                enrollBtn.setStyle(primaryBtnStlye);
+            enrollBtn.setStyle(primaryBtnStlye);
 
-                loginToEnrollBtn.setStyle(primaryBtnStlye);
+            loginToEnrollBtn.setStyle(primaryBtnStlye);
 
-                Label quota= new Label("Course Quota "+String.valueOf(courses.get(i).getSeatNum()));
-                quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                if(loggedIn){
-                    courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
-                }else{
-                    courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
-                }
-                loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
+            Label quota= new Label("Course Quota "+String.valueOf(courses.get(i).getSeatNum()));
+            quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
+            if(loggedIn){
+                courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
+            }else{
+                courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
+            }
+            loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
 
-                courseBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #d0baf5;  -fx-padding: 15; -fx-border-radius: 10; ");
+            courseBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #d0baf5;  -fx-padding: 15; -fx-border-radius: 10; ");
 
-                coursesboxes.getChildren().add(courseBox);
-                coursesboxes.setSpacing(10);
-                coursesboxes.setPadding(new Insets(10,10,10,10));
-                //coursesboxes.set
+            coursesboxes.getChildren().add(courseBox);
+            coursesboxes.setSpacing(10);
+            coursesboxes.setPadding(new Insets(10,10,10,10));
+            //coursesboxes.set
         }
+        return coursesboxes;
+
+    }
+
+
+
+
+
+
+
+    @Override
+    public void start(Stage stage) {
+        //rara part
+        TabPane tabs = tb();
+
+
+
+
+
+
+
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(coursesboxes);
+        //scrollPane.setContent(coursesboxes);
+        scrollPane.setContent(getCoursesDiaplayList());
         HBox header = new HBox();
         header.setSpacing(20);
         header.setPadding(new Insets(10,10,30,10));
@@ -451,10 +470,19 @@ public class MainApp extends Application {
             loggedIn = LogInService.CheckPassword(usernameFd.getText(), passwordFd.getText()); // TODO: make it into a function, check values
             if (loggedIn == true){
                 tempStudent_id = LogInService.GetID(usernameFd.getText());
+                userId.setText("User ID: "+ tempStudent_id);
                 System.out.println(tempStudent_id + " ID UPDATED");
                 header.getChildren().clear();
+                loggedIn= true;
+
+                scrollPane.setContent(coursesboxes);
+                //coursesboxes.getChildren().clear();
+
                 header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId, logOutButton);
+                VBox coursesDiaplayList= getCoursesDiaplayList();
+                scrollPane.setContent(coursesDiaplayList);
                 aLlPages.setCenter(scrollPane);
+
                 //courseBox.getChildren().clear();
                 //courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
             }
