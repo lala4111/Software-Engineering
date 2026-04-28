@@ -119,6 +119,10 @@ public class MainApp extends Application {
 
         add.setOnAction(e->{
             try{
+                CourseService courseService = new CourseService();
+                courseService.addCourse(tx_name.getText(),ta_description.getText(),Integer.parseInt(tx_capacity.getText()),
+                        Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
+                        Integer.parseInt(tx_credit.getText()));
 
                 org.example.open_scholars.Course one = new org.example.open_scholars.Course(
                         Integer.parseInt(tx_id.getText()),
