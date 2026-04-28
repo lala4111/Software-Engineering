@@ -1,5 +1,7 @@
 package com.university.ui;
 
+import com.university.model.Course;
+
 import java.util.ArrayList;
 
 public class Manage {

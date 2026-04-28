@@ -1,5 +1,4 @@
 package com.university.ui;
-
 import com.university.model.Course;
 import com.university.service.CourseService;
 import com.university.service.EnrollmentService;
@@ -12,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -42,6 +42,7 @@ public class MainApp extends Application {
     int tempEnrollment_id = 1;
     int numberOfEnrollments = 0;
 
+
     double screenSize = Screen.getPrimary().getBounds().getWidth();
     //double screenSize = 1100;
     double titleFontSize= (int) (screenSize*0.01);
@@ -49,6 +50,12 @@ public class MainApp extends Application {
     //int titleFontSize= 16;
     //int textFontSize= 24;
     Button logOutButton = new Button("Log Out");
+
+    //Setting tableview
+
+
+
+
 
 
 
@@ -58,7 +65,8 @@ public class MainApp extends Application {
             "-fx-text-fill: #12012e; -fx-font-size: 18px;-fx-border-radius: 8; -fx-font-weight:bold";
     //rara part
     Manage archive = new Manage();
-    TilePane tp1 = new TilePane();
+    VBox coursel = new VBox();
+    CourseService cs = new CourseService();
 
 
 
@@ -82,7 +90,8 @@ public class MainApp extends Application {
     }
 
     public Pane tab1(){
-        Text id = new Text("Course ID");
+        Text id = new Text("ID");
+        Text id_num = new Text(Integer.toString(courses.getLast().getId() + 1));
         Text name = new Text("Name");
         Text description = new Text("Description");
         Text capacity = new Text("Capacity");
@@ -92,7 +101,7 @@ public class MainApp extends Application {
         Text category = new Text("Category");
         Text credit = new Text("Credit");
 
-        TextField tx_id = new TextField();
+
         TextField tx_name = new TextField();
         TextArea ta_description= new TextArea();
         ta_description.setPrefColumnCount(5);
@@ -102,7 +111,7 @@ public class MainApp extends Application {
         TextField tx_fee = new TextField();
         TextField tx_schedule = new TextField();
         ChoiceBox<String> cb_level = new ChoiceBox<>();
-        cb_level.getItems().addAll("Select","Beginner","Intermediate", "Advanced");
+        cb_level.getItems().addAll("Select","beginner","intermediate", "advanced");
         cb_level.setValue("Select");
         ChoiceBox<String> cb_category = new ChoiceBox<>();
         cb_category.getItems().addAll("Select","Math", "Physics","IT","Art", "Linguistics","Literature","History");
@@ -116,11 +125,14 @@ public class MainApp extends Application {
         add.setOnAction(e->{
             try{
 
-                com.university.ui.Course one = new com.university.ui.Course(
-                        Integer.parseInt(tx_id.getText()),
+
+
+
+                Course one = new Course(
+                        0,
                         tx_name.getText(),ta_description.getText(),
                         Integer.parseInt(tx_capacity.getText()),
-                        Integer.parseInt(tx_fee.getText()),
+                        Double.parseDouble(tx_fee.getText()),
                         cb_level.getValue(),
                         cb_category.getValue(),
                         Integer.parseInt(tx_credit.getText()),
@@ -128,9 +140,13 @@ public class MainApp extends Application {
 
                 );
 
-                archive.setArchive(one);
 
-                tx_id.clear();
+
+                cs.addCourse(one.getTitle(),one.getDescription(),one.getSeatNum(), one.getFee(),one.getSchedule(),one.getLevel(),one.getCredits(),one.getCategory());
+
+
+
+                archive.setArchive(one);
                 tx_name.clear();
                 ta_description.clear();
                 tx_capacity.clear();
@@ -142,14 +158,11 @@ public class MainApp extends Application {
 
 
 
-                tp1.setVgap(10);
-                tp1.setHgap(10);
-                tp1.setPrefColumns(3);
 
-                Rectangle r1 = new Rectangle(100,100);
-                r1.setFill(Color.WHITE);
-                tp1.getChildren().add(r1);
-                r1.setOnMouseClicked(en-> getDetail(one));
+
+
+
+                //r1.setOnMouseClicked(en-> getDetail(one)); this is useful when the list is clicjed
 
 
             }
@@ -165,7 +178,7 @@ public class MainApp extends Application {
 
         GridPane gp = new GridPane();
         gp.add(id,0,0);
-        gp.add(tx_id,1,0);
+        gp.add(id_num, 1,0);
         gp.add(name,2,0);
         gp.add(tx_name,3,0);
         gp.add(capacity,4,0);
@@ -207,24 +220,49 @@ public class MainApp extends Application {
         return p;
     }
 
-    public Pane tab2(){
-        tp1.setHgap(10);
-        tp1.setVgap(10);
-        tp1.setPadding(new Insets(10));
-        return tp1;
+    public VBox tab2(){
+        TableView<Course> courseList = new TableView<>();
+        TableColumn<Course, Integer> coId = new TableColumn<>("ID");
+        TableColumn<Course, String> coTitle = new TableColumn<>("Title");
+        coTitle.setMinWidth(150);
+        TableColumn<Course, String> coCategory = new TableColumn<>("Category");
+        coCategory.setMinWidth(150);
+        TableColumn<Course, Double> coFee = new TableColumn<>("Fee");
+        TableColumn<Course, Integer> coSeat = new TableColumn<>("Capacity");
+        TableColumn<Course, Integer> coCredit = new TableColumn<>("Credits");
+        TableColumn<Course, String> coSchedule = new TableColumn<>("Schedule");
+        coSchedule.setMinWidth(150);
+        TableColumn<Course, String> coLevel = new TableColumn<>("Level");
+
+        coId.setCellValueFactory(new PropertyValueFactory<Course, Integer>("id"));
+        coTitle.setCellValueFactory(new PropertyValueFactory<Course, String>("title"));
+        coCategory.setCellValueFactory(new PropertyValueFactory<Course, String>("category"));
+        coFee.setCellValueFactory(new PropertyValueFactory<Course, Double>("fee"));
+        coSeat.setCellValueFactory(new PropertyValueFactory<Course, Integer>("capacity"));
+        coCredit.setCellValueFactory(new PropertyValueFactory<Course, Integer>("credit"));
+        coSchedule.setCellValueFactory(new PropertyValueFactory<Course, String>("schedule"));
+        coLevel.setCellValueFactory(new PropertyValueFactory<Course, String>("level"));
+        courseList.getColumns().addAll(coId,coTitle, coCategory,coFee,coSeat,coCredit,coSchedule,coLevel);
+        coursel.getChildren().addAll(courseList);
+        courseList.setOnMouseClicked(event->{
+            Course selected = courseList.getSelectionModel().getSelectedItem();
+            getDetail(selected);
+
+        });
+        return coursel;
     }
 
-    public void getDetail(com.university.ui.Course p){
+    public void getDetail(Course p){
         Stage stage = new Stage();
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(20));
 
         Text t1 = new Text("Course ID: ");
-        TextField tx1 = new TextField(String.valueOf(p.getCourse_id()));
+        TextField tx1 = new TextField(String.valueOf(p.getTitle()));
         Text t2 =new Text("Course Name: ");
-        TextField tx2 = new TextField(p.getName());
+        TextField tx2 = new TextField(p.getTitle());
         Text t3 =new Text("Capacity: ");
-        TextField tx3 = new TextField(String.valueOf(p.getCapacity()));
+        TextField tx3 = new TextField(String.valueOf(p.getSeatNum()));
         Text t4 =new Text("Fee: ");
         TextField tx4 = new TextField(String.valueOf(p.getFee()));
         Text t5 =new Text("Level: ");
@@ -283,21 +321,22 @@ public class MainApp extends Application {
         stage.show();
     }
 
-    @Override
+    public List<Course> courses = cs.getCourses();
     public void start(Stage stage) {
         //rara part
         TabPane tabs = tb();
 
-        List<Course> courses = new CourseService().getCourses();
+
 
 
         BorderPane aLlPages= new BorderPane();
 
         for(int i =0; i < courses.size(); i++){
                 VBox courseBox = new VBox(10);
-                Label courseName = new Label("Course Name"+courses.get(i).getTitle());
+                Label courseName = new Label("Course Name "+courses.get(i).getTitle());
+                Label courseID = new Label("Course ID : "+courses.get(i).getId() );
                 courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
-
+                courseID.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
                 TextArea courseDescription = new TextArea("Description: "+courses.get(i).getDescription());
                 courseDescription.setWrapText(true);
                 courseDescription.setMaxWidth(Double.MAX_VALUE);
@@ -364,7 +403,7 @@ public class MainApp extends Application {
                 Label quota= new Label("Course Quota "+String.valueOf(courses.get(i).getSeatNum()));
                 quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
                 if(loggedIn){
-                    courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
+                    courseBox.getChildren().addAll(courseName,courseID,courseDescription, quota, enrollBtn);
                 }else{
                     courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
                 }

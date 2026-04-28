@@ -3,10 +3,7 @@ package com.university.service;
 import com.university.database.DBConnection;
 import com.university.model.Course;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +42,8 @@ public class CourseService {
         }
         return courses;
     }
+
+
     public void addCourse(String title, String description, int seat, double fee, String level, String category, int credits, String schedule) {
         try (Connection connection = DBConnection.getConnection()) {
             //? to be determined later
@@ -55,17 +54,22 @@ public class CourseService {
             preparedStatement.setInt(2, seat);// 2 second ? This would set seat
             preparedStatement.setString(3, description);
             preparedStatement.setDouble(4, fee);
-            preparedStatement.setString(5, level);
-            preparedStatement.setString(6, category);
-            preparedStatement.setInt(7, credits);
-            preparedStatement.setString(8, schedule);
+            preparedStatement.setString(5, schedule);
+            preparedStatement.setString(6, level);
+            preparedStatement.setString(7, category);
+            preparedStatement.setInt(8, credits);
             preparedStatement.executeUpdate();/*Returns the number of rows affected by the execution of the SQL statement. Use this method to execute SQL statements for which you expect to get a number of rows affected - for example, an INSERT, UPDATE, or DELETE statement.*/
 
-            System.out.println("Course added!");
+
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void deleteCourse(){
+
     }
 
 }
