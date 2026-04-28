@@ -42,6 +42,7 @@ public class MainApp extends Application {
     int tempStudent_id = 1;// temp var and needed to be replaced when the user login logic is ready
     int tempEnrollment_id = 1;
     int numberOfEnrollments = 0;
+    private final EnrollmentService enrollmentService = new EnrollmentService();
 
     double screenSize = Screen.getPrimary().getBounds().getWidth();
     //double screenSize = 1100;
@@ -284,6 +285,19 @@ public class MainApp extends Application {
         stage.show();
     }
 
+    private void showEnrollmentAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(content);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setStyle("-fx-font-size: " + textFontSize + "px; -fx-font-weight: bold;");
+
+        alert.showAndWait();
+    }
+
+
     @Override
     public void start(Stage stage) {
         //rara part
@@ -312,64 +326,41 @@ public class MainApp extends Application {
 
             int finalI = i;
             enrollBtn.setOnAction(e -> {
-                EnrollmentService enrollmentService= new EnrollmentService();
-                int enrolledStudentsNum= enrollmentService.getCourseEnrollmentsCount(currentCourseId);
-                Boolean isFull= enrolledStudentsNum >= currentCourse.getSeatNum();
-                Boolean sucessfulEnrolled=false;
-                if( !isFull){
+                boolean success = enrollmentService.enrollStudent(
+                        tempStudent_id,
+                        currentCourseId,
+                        Enrollment.PaymentStatus.unpayed,
+                        Enrollment.EnrollmentStatus.pending
+                );
 
-                     sucessfulEnrolled =enrollmentService.enrollStudent(tempStudent_id,currentCourseId,Enrollment.PaymentStatus.unpayed, Enrollment.EnrollmentStatus.pending);
+                if (success) {
+                    // Enrollment successful
+                    showEnrollmentAlert(
+                            Alert.AlertType.INFORMATION,
+                            "Successfully Enrolled",
+                            "You have registered successfully! Please visit the office to confirm your seat within 2 days."
+                    );
+                } else {
+                    // Enrollment failed
+                    // provide specific feedback to the user
+                    int currentCount = enrollmentService.getCourseEnrollmentsCount(currentCourseId);
 
-                    System.out.println(currentCourseId);
-                }
-        //    if (sucessfullEnrollment) {
-                        if (sucessfulEnrolled ) {
-                        String message = "You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days";
-                        TextArea textArea = new TextArea(message);
-                        textArea.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
-                        textArea.setWrapText(true);
-
-                        textArea.setPrefSize(screenSize/7,screenSize/7);
-                        //https://code.makery.ch/blog/javafx-dialogs-official/
-                        Alert alert =  new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Sucessfully Enrolled");
-                        alert.setHeaderText("Successfully Enrolled");
-                        alert.setContentText("You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days");
-                        alert.showAndWait();
-                        DialogPane dialogPane = alert.getDialogPane();
-                        dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
-
-                    } else if (isFull) {
-                            String message= "The course quota is full";
-                            TextArea textArea = new TextArea(message);
-                            textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                            textArea.setWrapText(true);
-                            textArea.setPrefSize(screenSize/7,screenSize/7);
-                            Alert alert =  new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Unsucessfull Enrollment");
-                            alert.setHeaderText("Unsucessfull Enrollment");
-                            alert.setContentText(textArea.getText());
-                            alert.showAndWait();
-                            DialogPane dialogPane = alert.getDialogPane();
-                            dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;");
-
-                        } else{
-                            String message= "You have been already enrolled for this course";
-                            TextArea textArea = new TextArea(message);
-                            textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                            textArea.setWrapText(true);
-                            textArea.setPrefSize(screenSize/7,screenSize/7);
-                            Alert alert =  new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Unsucessfull Enrollment");
-                            alert.setHeaderText("Unsucessfull Enrollment");
-                            alert.setContentText(textArea.getText());
-                            alert.showAndWait();
-                            DialogPane dialogPane = alert.getDialogPane();
-                            dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;");
-
+                    if (currentCount >= currentCourse.getSeatNum()) {
+                        showEnrollmentAlert(
+                                Alert.AlertType.ERROR,
+                                "Enrollment Failed",
+                                "The course quota is full."
+                        );
+                    } else {
+                        showEnrollmentAlert(
+                                Alert.AlertType.ERROR,
+                                "Enrollment Failed",
+                                "You have already enrolled for this course or a system error occurred."
+                        );
                     }
+                }
+            });
 
-                });
                 enrollBtn.setStyle(primaryBtnStlye);
 
                 loginToEnrollBtn.setStyle(primaryBtnStlye);

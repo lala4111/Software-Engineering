@@ -1,6 +1,7 @@
 package com.university.model;
 
 public class Enrollment {
+    private int enrollmentId;
     private int id_course;
     private int id_student;
     private PaymentStatus payment_status;
@@ -19,12 +20,15 @@ public class Enrollment {
     }
 
 
-    public  Enrollment(int id_course, int id_student, PaymentStatus payment_status, EnrollmentStatus enrollment_status) {
+    public  Enrollment(int enrollmentId, int id_course, int id_student, PaymentStatus payment_status, EnrollmentStatus enrollment_status) {
+        this.enrollmentId = enrollmentId;
         this.id_course = id_course;
         this.id_student = id_student;
         this.payment_status = payment_status;
         this.enrollment_status = enrollment_status;
     }
+    public int getEnrollmentId() { return enrollmentId; }
+    public void setEnrollmentId(int enrollmentId) { this.enrollmentId = enrollmentId; }
     public int getId_Course() {
         return id_course;
     }
