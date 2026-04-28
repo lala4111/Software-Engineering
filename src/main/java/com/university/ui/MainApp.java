@@ -463,6 +463,7 @@ public class MainApp extends Application {
         TextField usernameFd = new TextField();
         usernameFd.setPromptText("Username");
         TextField passwordFd = new TextField(); // Can be set to PasswordField
+        //PasswordField passwordFd= new PasswordField();
         passwordFd.setPromptText("Password");
         Button logbtn = new Button("Log in");
 
@@ -482,13 +483,31 @@ public class MainApp extends Application {
                 aLlPages.setCenter(scrollPane);
 
             }
+            else {
+                showEnrollmentAlert(
+                        Alert.AlertType.ERROR,
+                        "unsucessful login",
+                        "Incorrect username or password"
+                );
+
+
+            }
         });
 
         loginPage.getChildren().addAll(usernameFd, passwordFd, logbtn); // creating the login page
-
+        logOutButton.setOnAction(e->{
+            loggedIn = false;
+            header.getChildren().clear();
+            header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId,loginBtn, signupBtn);
+            VBox coursesDiaplayList= getCoursesDiaplayList();
+            scrollPane.setContent(coursesDiaplayList);
+            aLlPages.setCenter(scrollPane);
+        }
+        );
         TextField newUsername = new TextField();
         newUsername.setPromptText("Username");
         TextField newPassword = new TextField();
+        //PasswordField newPassword = new PasswordField();
         newPassword.setPromptText("Password");
         TextField firstName = new TextField();
         firstName.setPromptText("First name");
@@ -513,6 +532,7 @@ public class MainApp extends Application {
                 scrollPane.setContent(coursesDiaplayList);
                 aLlPages.setCenter(scrollPane);
             }
+
         });
 
 
