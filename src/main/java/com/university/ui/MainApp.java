@@ -455,8 +455,10 @@ public class MainApp extends Application {
         logbtn.setOnAction(e->{ // log in button
             loggedIn = LogInService.CheckPassword(usernameFd.getText(), passwordFd.getText()); // TODO: make it into a function, check values
             if (loggedIn == true){
+                isAdmin = LogInService.GetPrivilege(usernameFd.getText());
                 tempStudent_id = LogInService.GetID(usernameFd.getText());
                 System.out.println(tempStudent_id + " ID UPDATED");
+                userId.setText("User ID: " + tempStudent_id);
                 header.getChildren().clear();
                 header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId, logOutButton);
                 aLlPages.setCenter(scrollPane);
@@ -486,7 +488,9 @@ public class MainApp extends Application {
             RegisterService.AddAccount(newUsername.getText(),newPassword.getText(),firstName.getText(),surName.getText(),phone.getText(),email.getText());
             loggedIn = LogInService.CheckPassword(newUsername.getText(), newPassword.getText());
             if (loggedIn == true) {
+                isAdmin = LogInService.GetPrivilege(newUsername.getText());
                 tempStudent_id = LogInService.GetID(newUsername.getText());
+
                 header.getChildren().clear();
                 header.getChildren().addAll(homeBtn, aboutBtn, courseBtn, userId, logOutButton);
                 aLlPages.setCenter(scrollPane);
@@ -494,6 +498,14 @@ public class MainApp extends Application {
         });
 
         signUpPage.getChildren().addAll(newUsername,newPassword,firstName,surName,phone,email,regBtn);
+
+        logOutButton.setOnAction(e->{
+            tempStudent_id = -1;
+            loggedIn = false;
+            header.getChildren().clear();
+            header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, loginBtn,signupBtn);
+
+        });
 
 // ================================================================================================================
 

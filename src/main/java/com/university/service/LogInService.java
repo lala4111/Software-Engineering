@@ -36,4 +36,16 @@ public class LogInService {
         }
         return -1;
     }
+    public static boolean GetPrivilege(String user){
+        try (Connection con = DBConnection.getConnection()){
+            String task = String.format("SELECT role FROM person WHERE username LIKE \"%s\"", user);
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(task);
+            rs.next();
+            if(rs.getString(1).equals("admin")) return true;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
