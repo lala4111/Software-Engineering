@@ -10,53 +10,111 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnrollmentService {
-    int enrollmentCount;
 
-    // returns a boolean (true/false) indicating success
-    public boolean enrollStudent(int personId, int courseId, Enrollment.PaymentStatus payment_status, Enrollment.EnrollmentStatus enrollment_status) {
-        String sql = "INSERT INTO enrollment (id_student, id_course, payment_status, enrollment_status) VALUES (?, ?, ?, ?)";
-        // ? acts as placeholders for the actual ID
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, personId);
-            preparedStatement.setInt(2, courseId);
-            preparedStatement.setString(3, payment_status.name());
-            preparedStatement.setString(4, enrollment_status.name());
-            return preparedStatement.executeUpdate() > 0;
+    public boolean enrollStudent(int studentId, int courseId, Enrollment.PaymentStatus paymentStatus, Enrollment.EnrollmentStatus enrollmentStatus) {
+        // Query and lock the specific course row to prevent other threads from accessing it simultaneously
+        // "FOR UPDATE" is for locking
+        String checkAndLockSql = "SELECT seat FROM course WHERE id = ? FOR UPDATE";
+        // Decrease the seat count only if there is at least one seat available
+        String decreaseSeatSql = "UPDATE course SET seat = seat - 1 WHERE id = ? AND seat > 0";
+        // Insert the new enrollment record into the database
+        String insertEnrollmentSql = "INSERT INTO enrollment (id_student, id_course, payment_status, enrollment_status) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DBConnection.getConnection()) {
+            // Disable auto-commit to start a manual Database Transaction
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkAndLockSql);
+                 PreparedStatement updateStmt = conn.prepareStatement(decreaseSeatSql);
+                 PreparedStatement insertStmt = conn.prepareStatement(insertEnrollmentSql)) {
+
+                // 1. Check seat availability and apply a lock
+                checkStmt.setInt(1, courseId);
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (rs.next()) {
+                    int currentSeats = rs.getInt("seat");
+                    if (currentSeats <= 0) {
+                        // No seats left: rollback the transaction and return false
+                        conn.rollback();
+                        System.out.println("No seats available for course ID: " + courseId);
+                        return false;
+                    }
+                } else {
+                    // Course ID not found in the database
+                    conn.rollback();
+                    return false;
+                }
+
+                //  2. Decrease the seat count in the course table
+                updateStmt.setInt(1, courseId);
+                int rowsUpdated = updateStmt.executeUpdate();
+                if (rowsUpdated == 0) {
+                    // Update failed : rollback the transaction
+                    conn.rollback();
+                    return false;
+                }
+
+                // 3. Insert the enrollment record
+                insertStmt.setInt(1, studentId);
+                insertStmt.setInt(2, courseId);
+                insertStmt.setString(3, paymentStatus.name());
+                insertStmt.setString(4, enrollmentStatus.name());
+                insertStmt.executeUpdate();
+
+                // Commit the changes permanently to the database
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                // If any error occurs, rollback all changes
+                conn.rollback();
+                System.err.println("Transaction failed, rolling back: " + e.getMessage());
+                return false;
+            } finally {
+                // Restore default auto commit behavior for the connection
+                conn.setAutoCommit(true);
+            }
         } catch (Exception e) {
-            System.err.println("Enrollment failed: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
-    public List<Enrollment> getEnrollments(int student_id, int course_id) {
+    public List<Enrollment> getEnrollments(int studentId, int courseId) {
         List<Enrollment> enrollments = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection()) {
-            Statement statement = conn.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM enrollment");
+        String sql = "SELECT * FROM enrollment WHERE id_student = ? AND id_course = ?";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.setInt(1, studentId);
+            preparedStatement.setInt(2, courseId);
+            ResultSet result = preparedStatement.executeQuery();
             while (result.next()) {
-                int enrollment_id = result.getInt("enrollment_id");
-                int courseId= result.getInt("id_course");
-                int studentId = result.getInt("id_student");
+                int enrollmentId = result.getInt("enrollment_id");
+                // These variables were commented out because the exact studentId and courseId are already provided as method parameters
+                // int courseId= result.getInt("id_course");
+                // int studentId = result.getInt("id_student");
                 Enrollment.PaymentStatus paymentStatus = Enrollment.PaymentStatus.valueOf(result.getString("payment_status"));
                 Enrollment.EnrollmentStatus enrollmentStatus = Enrollment.EnrollmentStatus.valueOf(result.getString("enrollment_status"));
-                Enrollment enrollment= new Enrollment(courseId, studentId,  paymentStatus, enrollmentStatus);
+                Enrollment enrollment= new Enrollment(enrollmentId, courseId, studentId, paymentStatus, enrollmentStatus);
                 enrollments.add(enrollment);
             }
 
         }
-        catch (Exception e) {}
+        catch (Exception e) {System.err.println("Fetch enrollments failed: " + e.getMessage());}
         return  enrollments;
 
     }
     public int getCourseEnrollmentsCount( int course_id){
-
+        int enrollmentCount = 0;
+        // Moving this variable inside the method to make it a Local Variable.
+        // each concurrent Thread now receives its own isolated copy, guaranteeing Thread Safety.
         try(Connection connection= DBConnection.getConnection()) {
             String sql = "select count(*) from enrollment where  id_course=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1,course_id);
             ResultSet resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()){
-                enrollmentCount = resultSet.getInt("count(*)");
+            // always returns exactly one row, so an 'if' statement is sufficient instead of a 'while' loop
+            if (resultSet.next()) {
+                enrollmentCount = resultSet.getInt(1); // 这里的 1 代表获取第一列的结果
             }
 
 
@@ -84,7 +142,7 @@ public class EnrollmentService {
 
     public void addEnrollment(int id_student, int id_course, Enrollment.PaymentStatus payment_status, Enrollment.EnrollmentStatus enrollment_status) {
         try(Connection connection= DBConnection.getConnection()) {
-            String sql = "INSERT INTO enrollment(id_student,id_course, paymnet_status, enrollment_status) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO enrollment(id_student,id_course, payment_status, enrollment_status) VALUES (?, ?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, id_student);
             preparedStatement.setInt(2, id_course);

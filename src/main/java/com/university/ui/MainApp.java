@@ -20,6 +20,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.geometry.Pos;
@@ -30,6 +32,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 
 public class MainApp extends Application {
+    BorderPane aLlPages= new BorderPane();
     VBox homePage = new VBox(10);
     VBox aboutPage = new VBox(10);
     VBox adminPage = new VBox(10);
@@ -44,6 +47,7 @@ public class MainApp extends Application {
     int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
     int tempEnrollment_id = 1;
     int numberOfEnrollments = 0;
+    private final EnrollmentService enrollmentService = new EnrollmentService();
 
     double screenSize = Screen.getPrimary().getBounds().getWidth();
     //double screenSize = 1100;
@@ -52,6 +56,7 @@ public class MainApp extends Application {
     //int titleFontSize= 16;
     //int textFontSize= 24;
     Button logOutButton = new Button("Log Out");
+    List<Course> courses = new CourseService().getCourses();
 
 
 
@@ -118,6 +123,10 @@ public class MainApp extends Application {
 
         add.setOnAction(e->{
             try{
+                CourseService courseService = new CourseService();
+                courseService.addCourse(tx_name.getText(),ta_description.getText(),Integer.parseInt(tx_capacity.getText()),
+                        Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
+                        Integer.parseInt(tx_credit.getText()));
 
                 org.example.open_scholars.Course one = new org.example.open_scholars.Course(
                         Integer.parseInt(tx_id.getText()),
@@ -286,114 +295,119 @@ public class MainApp extends Application {
         stage.show();
     }
 
+    private void showEnrollmentAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(content);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setStyle("-fx-font-size: " + textFontSize + "px; -fx-font-weight: bold;");
+
+        alert.showAndWait();
+    }
+
+
+    VBox getCoursesDiaplayList(){
+        coursesboxes.getChildren().clear();
+
+        for(int i =0; i < courses.size(); i++){
+            VBox courseBox = new VBox(10);
+            Label courseName = new Label("Course Name"+courses.get(i).getTitle());
+            courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
+
+            TextArea courseDescription = new TextArea("Description: "+courses.get(i).getDescription());
+            courseDescription.setWrapText(true);
+            courseDescription.setMaxWidth(Double.MAX_VALUE);
+            courseDescription.setEditable(false);
+            courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
+            Button enrollBtn = new Button("Enroll");
+            Button loginToEnrollBtn = new Button("Login to Enrollment");
+            enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
+            Course currentCourse = courses.get(i);
+            int currentCourseId= courses.get(i).getId();
+
+            int finalI = i;
+            enrollBtn.setOnAction(e -> {
+                boolean success = enrollmentService.enrollStudent(
+                        tempStudent_id,
+                        currentCourseId,
+                        Enrollment.PaymentStatus.unpayed,
+                        Enrollment.EnrollmentStatus.pending
+                );
+
+                if (success) {
+                    // Enrollment successful
+                    showEnrollmentAlert(
+                            Alert.AlertType.INFORMATION,
+                            "Successfully Enrolled",
+                            "You have registered successfully! Please visit the office to confirm your seat within 2 days."
+                    );
+                } else {
+                    // Enrollment failed
+                    // provide specific feedback to the user
+                    int currentCount = enrollmentService.getCourseEnrollmentsCount(currentCourseId);
+
+                    if (currentCount >= currentCourse.getSeatNum()) {
+                        showEnrollmentAlert(
+                                Alert.AlertType.ERROR,
+                                "Enrollment Failed",
+                                "The course quota is full."
+                        );
+                    } else {
+                        showEnrollmentAlert(
+                                Alert.AlertType.ERROR,
+                                "Enrollment Failed",
+                                "You have already enrolled for this course or a system error occurred."
+                        );
+                    }
+                }
+            });
+
+            enrollBtn.setStyle(primaryBtnStlye);
+
+            loginToEnrollBtn.setStyle(primaryBtnStlye);
+
+            Label quota= new Label("Remaining seats "+String.valueOf(courses.get(i).getSeatNum()));
+            quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
+            if(loggedIn){
+                courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
+            }else{
+                courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
+            }
+            loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
+
+            courseBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #d0baf5;  -fx-padding: 15; -fx-border-radius: 10; ");
+
+            coursesboxes.getChildren().add(courseBox);
+            coursesboxes.setSpacing(10);
+            coursesboxes.setPadding(new Insets(10,10,10,10));
+            //coursesboxes.set
+        }
+        return coursesboxes;
+
+    }
+
+
+
+
+
+
+
     @Override
     public void start(Stage stage) {
         //rara part
         TabPane tabs = tb();
 
-        List<Course> courses = new CourseService().getCourses();
 
 
-        BorderPane aLlPages= new BorderPane();
 
-        for(int i =0; i < courses.size(); i++){
-                VBox courseBox = new VBox(10);
-                Label courseName = new Label("Course Name"+courses.get(i).getTitle());
-                courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
 
-                TextArea courseDescription = new TextArea("Description: "+courses.get(i).getDescription());
-                courseDescription.setWrapText(true);
-                courseDescription.setMaxWidth(Double.MAX_VALUE);
-                courseDescription.setEditable(false);
-                courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                Button enrollBtn = new Button("Enroll");
-                Button loginToEnrollBtn = new Button("Login to Enrollment");
-                enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                Course currentCourse = courses.get(i);
-                int currentCourseId= courses.get(i).getId();
 
-            int finalI = i;
-            enrollBtn.setOnAction(e -> {
-                EnrollmentService enrollmentService= new EnrollmentService();
-                int enrolledStudentsNum= enrollmentService.getCourseEnrollmentsCount(currentCourseId);
-                Boolean isFull= enrolledStudentsNum >= currentCourse.getSeatNum();
-                Boolean sucessfulEnrolled=false;
-                if( !isFull){
 
-                     sucessfulEnrolled =enrollmentService.enrollStudent(tempStudent_id,currentCourseId,Enrollment.PaymentStatus.unpayed, Enrollment.EnrollmentStatus.pending);
-
-                    System.out.println(currentCourseId);
-                }
-        //    if (sucessfullEnrollment) {
-                        if (sucessfulEnrolled ) {
-                        String message = "You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days";
-                        TextArea textArea = new TextArea(message);
-                        textArea.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
-                        textArea.setWrapText(true);
-
-                        textArea.setPrefSize(screenSize/7,screenSize/7);
-                        //https://code.makery.ch/blog/javafx-dialogs-official/
-                        Alert alert =  new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Sucessfully Enrolled");
-                        alert.setHeaderText("Successfully Enrolled");
-                        alert.setContentText("You have registered sucessfully, please visit the office and pay the enrollment fees to confirm your seta within 2 days");
-                        alert.showAndWait();
-                        DialogPane dialogPane = alert.getDialogPane();
-                        dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;"+ "-fx-font-weight: bold;");
-
-                    } else if (isFull) {
-                            String message= "The course quota is full";
-                            TextArea textArea = new TextArea(message);
-                            textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                            textArea.setWrapText(true);
-                            textArea.setPrefSize(screenSize/7,screenSize/7);
-                            Alert alert =  new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Unsucessfull Enrollment");
-                            alert.setHeaderText("Unsucessfull Enrollment");
-                            alert.setContentText(textArea.getText());
-                            alert.showAndWait();
-                            DialogPane dialogPane = alert.getDialogPane();
-                            dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;");
-
-                        } else{
-                            String message= "You have been already enrolled for this course";
-                            TextArea textArea = new TextArea(message);
-                            textArea.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                            textArea.setWrapText(true);
-                            textArea.setPrefSize(screenSize/7,screenSize/7);
-                            Alert alert =  new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Unsucessfull Enrollment");
-                            alert.setHeaderText("Unsucessfull Enrollment");
-                            alert.setContentText(textArea.getText());
-                            alert.showAndWait();
-                            DialogPane dialogPane = alert.getDialogPane();
-                            dialogPane.setStyle("-fx-font-size:" +textFontSize+ "px;");
-
-                    }
-
-                });
-                enrollBtn.setStyle(primaryBtnStlye);
-
-                loginToEnrollBtn.setStyle(primaryBtnStlye);
-
-                Label quota= new Label("Course Quota "+String.valueOf(courses.get(i).getSeatNum()));
-                quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
-                if(loggedIn){
-                    courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
-                }else{
-                    courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
-                }
-                loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
-
-                courseBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #d0baf5;  -fx-padding: 15; -fx-border-radius: 10; ");
-
-                coursesboxes.getChildren().add(courseBox);
-                coursesboxes.setSpacing(10);
-                coursesboxes.setPadding(new Insets(10,10,10,10));
-                //coursesboxes.set
-        }
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(coursesboxes);
+        //scrollPane.setContent(coursesboxes);
+        scrollPane.setContent(getCoursesDiaplayList());
         HBox header = new HBox();
         header.setSpacing(20);
         header.setPadding(new Insets(10,10,30,10));
@@ -449,6 +463,7 @@ public class MainApp extends Application {
         TextField usernameFd = new TextField();
         usernameFd.setPromptText("Username");
         TextField passwordFd = new TextField(); // Can be set to PasswordField
+        //PasswordField passwordFd= new PasswordField();
         passwordFd.setPromptText("Password");
         Button logbtn = new Button("Log in");
 
@@ -457,21 +472,44 @@ public class MainApp extends Application {
             if (loggedIn == true){
                 isAdmin = LogInService.GetPrivilege(usernameFd.getText());
                 tempStudent_id = LogInService.GetID(usernameFd.getText());
+                userId.setText("User ID: "+ tempStudent_id);
                 System.out.println(tempStudent_id + " ID UPDATED");
                 userId.setText("User ID: " + tempStudent_id);
                 header.getChildren().clear();
+                loggedIn= true;
+                scrollPane.setContent(coursesboxes);
+
                 header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId, logOutButton);
+                VBox coursesDiaplayList= getCoursesDiaplayList();
+                scrollPane.setContent(coursesDiaplayList);
                 aLlPages.setCenter(scrollPane);
-                //courseBox.getChildren().clear();
-                //courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
+
+            }
+            else {
+                showEnrollmentAlert(
+                        Alert.AlertType.ERROR,
+                        "unsucessful login",
+                        "Incorrect username or password"
+                );
+
+
             }
         });
 
         loginPage.getChildren().addAll(usernameFd, passwordFd, logbtn); // creating the login page
-
+        logOutButton.setOnAction(e->{
+            loggedIn = false;
+            header.getChildren().clear();
+            header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId,loginBtn, signupBtn);
+            VBox coursesDiaplayList= getCoursesDiaplayList();
+            scrollPane.setContent(coursesDiaplayList);
+            aLlPages.setCenter(scrollPane);
+        }
+        );
         TextField newUsername = new TextField();
         newUsername.setPromptText("Username");
         TextField newPassword = new TextField();
+        //PasswordField newPassword = new PasswordField();
         newPassword.setPromptText("Password");
         TextField firstName = new TextField();
         firstName.setPromptText("First name");
@@ -490,12 +528,16 @@ public class MainApp extends Application {
             if (loggedIn == true) {
                 isAdmin = LogInService.GetPrivilege(newUsername.getText());
                 tempStudent_id = LogInService.GetID(newUsername.getText());
-
+                userId.setText("User ID: "+ tempStudent_id);
                 header.getChildren().clear();
                 header.getChildren().addAll(homeBtn, aboutBtn, courseBtn, userId, logOutButton);
+                VBox coursesDiaplayList= getCoursesDiaplayList();
+                scrollPane.setContent(coursesDiaplayList);
                 aLlPages.setCenter(scrollPane);
             }
+
         });
+
 
         signUpPage.getChildren().addAll(newUsername,newPassword,firstName,surName,phone,email,regBtn);
 
