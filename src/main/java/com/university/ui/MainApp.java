@@ -469,7 +469,7 @@ public class MainApp extends Application {
 
         logbtn.setOnAction(e->{ // log in button
             loggedIn = LogInService.CheckPassword(usernameFd.getText(), passwordFd.getText()); // TODO: make it into a function, check values
-            if (loggedIn == true){
+            if (loggedIn){
                 isAdmin = LogInService.GetPrivilege(usernameFd.getText());
                 tempStudent_id = LogInService.GetID(usernameFd.getText());
                 userId.setText("User ID: "+ tempStudent_id);
@@ -479,11 +479,17 @@ public class MainApp extends Application {
                 loggedIn= true;
                 scrollPane.setContent(coursesboxes);
 
-                header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId, logOutButton);
+                if(isAdmin){ // Admin view if true
+                    header.getChildren().addAll(homeBtn,aboutBtn,courseBtn,admindashboardBtn, userId, logOutButton);
+                }
+                else{ // Normie view
+                    header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId, logOutButton);
+                }
                 VBox coursesDiaplayList= getCoursesDiaplayList();
                 scrollPane.setContent(coursesDiaplayList);
                 aLlPages.setCenter(scrollPane);
 
+                usernameFd.clear(); passwordFd.clear();
             }
             else {
                 showEnrollmentAlert(
@@ -497,20 +503,24 @@ public class MainApp extends Application {
         });
 
         loginPage.getChildren().addAll(usernameFd, passwordFd, logbtn); // creating the login page
-        logOutButton.setOnAction(e->{
+        logOutButton.setOnAction(e->{ // logging out and setting you back to the logged out view
             loggedIn = false;
+            tempStudent_id = -1;
             header.getChildren().clear();
-            header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, userId,loginBtn, signupBtn);
+            header.getChildren().addAll(homeBtn,aboutBtn, courseBtn,loginBtn, signupBtn);
             VBox coursesDiaplayList= getCoursesDiaplayList();
             scrollPane.setContent(coursesDiaplayList);
             aLlPages.setCenter(scrollPane);
         }
         );
-        TextField newUsername = new TextField();
+
+        TextField newUsername = new TextField(); //Registration view
         newUsername.setPromptText("Username");
         TextField newPassword = new TextField();
         //PasswordField newPassword = new PasswordField();
         newPassword.setPromptText("Password");
+        TextField againPassword = new TextField();
+        againPassword.setPromptText("Confirm password");
         TextField firstName = new TextField();
         firstName.setPromptText("First name");
         TextField surName = new TextField();
@@ -520,34 +530,48 @@ public class MainApp extends Application {
         TextField email = new TextField();
         email.setPromptText("Email");
 
-        Button regBtn = new Button("Register"); // button to for registering
+        Button regBtn = new Button("Register"); // button for registering
 
-        regBtn.setOnAction(e->{ //TODO: check values, double password field.
-            RegisterService.AddAccount(newUsername.getText(),newPassword.getText(),firstName.getText(),surName.getText(),phone.getText(),email.getText());
-            loggedIn = LogInService.CheckPassword(newUsername.getText(), newPassword.getText());
-            if (loggedIn == true) {
-                isAdmin = LogInService.GetPrivilege(newUsername.getText());
-                tempStudent_id = LogInService.GetID(newUsername.getText());
-                userId.setText("User ID: "+ tempStudent_id);
-                header.getChildren().clear();
-                header.getChildren().addAll(homeBtn, aboutBtn, courseBtn, userId, logOutButton);
-                VBox coursesDiaplayList= getCoursesDiaplayList();
-                scrollPane.setContent(coursesDiaplayList);
-                aLlPages.setCenter(scrollPane);
+        regBtn.setOnAction(e->{ //TODO: check phone value?
+            if((!newUsername.getText().isBlank() || !newPassword.getText().isBlank() || !firstName.getText().isBlank() ||
+                    !surName.getText().isBlank() || !phone.getText().isBlank() || !email.getText().isBlank()) &&
+                    newPassword.getText().equals(againPassword.getText())) { // the first if checks if the spaces are filled and if the passwords match
+                if (RegisterService.AddAccount(newUsername.getText(), newPassword.getText(), firstName.getText(), surName.getText(), phone.getText(), email.getText())) {
+                    loggedIn = LogInService.CheckPassword(newUsername.getText(), newPassword.getText()); // checks inside if email is fine, adds to the database if it is
+                    if (loggedIn) { // same as log in button, might move to a separate method?
+                        isAdmin = LogInService.GetPrivilege(newUsername.getText());
+                        tempStudent_id = LogInService.GetID(newUsername.getText());
+                        userId.setText("User ID: " + tempStudent_id);
+                        header.getChildren().clear();
+                        header.getChildren().addAll(homeBtn, aboutBtn, courseBtn, userId, logOutButton);
+                        VBox coursesDiaplayList = getCoursesDiaplayList();
+                        scrollPane.setContent(coursesDiaplayList);
+                        aLlPages.setCenter(scrollPane);
+                    }
+                }else showEnrollmentAlert(
+                        Alert.AlertType.ERROR,
+                        "Unsuccessful Registration",
+                        "Email might be in use."
+                );
             }
+            else showEnrollmentAlert(
+                    Alert.AlertType.ERROR,
+                    "Unsuccessful Registration",
+                    "Make sure you filled out the fields right."
+            );
 
         });
 
 
-        signUpPage.getChildren().addAll(newUsername,newPassword,firstName,surName,phone,email,regBtn);
+        signUpPage.getChildren().addAll(newUsername,newPassword,againPassword,firstName,surName,phone,email,regBtn);
 
-        logOutButton.setOnAction(e->{
+        /*logOutButton.setOnAction(e->{
             tempStudent_id = -1;
             loggedIn = false;
             header.getChildren().clear();
             header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, loginBtn,signupBtn);
 
-        });
+        });*/
 
 // ================================================================================================================
 
