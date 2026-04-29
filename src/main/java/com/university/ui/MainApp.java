@@ -488,8 +488,8 @@ public class MainApp extends Application {
             else {
                 showEnrollmentAlert(
                         Alert.AlertType.ERROR,
-                        "unsucessful login",
-                        "Incorrect username or password"
+                        "Unsuccessful Login",
+                        "Incorrect Username or Password"
                 );
 
 
