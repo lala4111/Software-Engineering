@@ -7,6 +7,8 @@ import com.university.service.EnrollmentService;
 import com.university.service.LogInService;
 import com.university.service.RegisterService;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -21,8 +23,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
@@ -30,6 +32,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
+
 
 public class MainApp extends Application {
     BorderPane aLlPages= new BorderPane();
@@ -57,6 +60,25 @@ public class MainApp extends Application {
     //int textFontSize= 24;
     Button logOutButton = new Button("Log Out");
     List<Course> courses = new CourseService().getCourses();
+    HBox filters = new HBox(10);
+    Button applyFilters = new Button("Apply Filters");
+    ComboBox<String> categoryFilter = new ComboBox<>();
+    String[] categories= {"Select Category","Math", "Physics","IT","Art", "Linguistics","Literature","History"};
+    ObservableList<String> categoryList = FXCollections.observableArrayList(categories);
+
+    ComboBox<String> feeFilter = new ComboBox<>();
+    String[] fees= {"Select Fee Range","less than 50", "50-100","100-200","bigger than 200"};
+    ObservableList<String> feeList = FXCollections.observableArrayList(fees);
+
+    ComboBox<String> levelFilter = new ComboBox<>();
+    String[] levels= {"Select Level","Beginner","Intermediate", "Advanced"};
+    ObservableList<String> levelList = FXCollections.observableArrayList(levels);
+    Button clearFilter = new Button("Clear Filter");
+    TextField searchCourse = new TextField("search by course title");
+    Button searchCourseButton = new Button("Search Course");
+
+
+
 
 
 
@@ -307,79 +329,210 @@ public class MainApp extends Application {
         alert.showAndWait();
     }
 
+    public VBox getCourseBox(Course course){
+        VBox courseBox = new VBox(10);
+        Label courseName = new Label("Course Name"+course.getTitle());
+        courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
 
-    VBox getCoursesDiaplayList(){
-        coursesboxes.getChildren().clear();
+        TextArea courseDescription = new TextArea("Description: "+course.getDescription());
+        courseDescription.setWrapText(true);
+        courseDescription.setMaxWidth(Double.MAX_VALUE);
+        courseDescription.setEditable(false);
+        courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
+        Button enrollBtn = new Button("Enroll");
+        Button loginToEnrollBtn = new Button("Login to Enrollment");
+        enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
+        Course currentCourse = course;
+        int currentCourseId= course.getId();
+        Label courseFee= new Label("Course Fee: "+ String.valueOf(currentCourse.getFee()));
+        Label courseLevel= new Label("Course Level: "+ String.valueOf(currentCourse.getLevel()).toLowerCase());
+        Label courseCategory= new Label("Course Category: "+ String.valueOf(currentCourse.getCategory()));
 
-        for(int i =0; i < courses.size(); i++){
-            VBox courseBox = new VBox(10);
-            Label courseName = new Label("Course Name"+courses.get(i).getTitle());
-            courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
 
-            TextArea courseDescription = new TextArea("Description: "+courses.get(i).getDescription());
-            courseDescription.setWrapText(true);
-            courseDescription.setMaxWidth(Double.MAX_VALUE);
-            courseDescription.setEditable(false);
-            courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
-            Button enrollBtn = new Button("Enroll");
-            Button loginToEnrollBtn = new Button("Login to Enrollment");
-            enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
-            Course currentCourse = courses.get(i);
-            int currentCourseId= courses.get(i).getId();
+        enrollBtn.setOnAction(e -> {
+            boolean success = enrollmentService.enrollStudent(
+                    tempStudent_id,
+                    currentCourseId,
+                    Enrollment.PaymentStatus.unpayed,
+                    Enrollment.EnrollmentStatus.pending
+            );
 
-            int finalI = i;
-            enrollBtn.setOnAction(e -> {
-                boolean success = enrollmentService.enrollStudent(
-                        tempStudent_id,
-                        currentCourseId,
-                        Enrollment.PaymentStatus.unpayed,
-                        Enrollment.EnrollmentStatus.pending
+            if (success) {
+                // Enrollment successful
+                showEnrollmentAlert(
+                        Alert.AlertType.INFORMATION,
+                        "Successfully Enrolled",
+                        "You have registered successfully! Please visit the office to confirm your seat within 2 days."
                 );
+            } else {
+                // Enrollment failed
+                // provide specific feedback to the user
+                int currentCount = enrollmentService.getCourseEnrollmentsCount(currentCourseId);
 
-                if (success) {
-                    // Enrollment successful
+                if (currentCount >= currentCourse.getSeatNum()) {
                     showEnrollmentAlert(
-                            Alert.AlertType.INFORMATION,
-                            "Successfully Enrolled",
-                            "You have registered successfully! Please visit the office to confirm your seat within 2 days."
+                            Alert.AlertType.ERROR,
+                            "Enrollment Failed",
+                            "The course quota is full."
                     );
                 } else {
-                    // Enrollment failed
-                    // provide specific feedback to the user
-                    int currentCount = enrollmentService.getCourseEnrollmentsCount(currentCourseId);
-
-                    if (currentCount >= currentCourse.getSeatNum()) {
-                        showEnrollmentAlert(
-                                Alert.AlertType.ERROR,
-                                "Enrollment Failed",
-                                "The course quota is full."
-                        );
-                    } else {
-                        showEnrollmentAlert(
-                                Alert.AlertType.ERROR,
-                                "Enrollment Failed",
-                                "You have already enrolled for this course or a system error occurred."
-                        );
-                    }
+                    showEnrollmentAlert(
+                            Alert.AlertType.ERROR,
+                            "Enrollment Failed",
+                            "You have already enrolled for this course or a system error occurred."
+                    );
                 }
-            });
-
-            enrollBtn.setStyle(primaryBtnStlye);
-
-            loginToEnrollBtn.setStyle(primaryBtnStlye);
-
-            Label quota= new Label("Remaining seats "+String.valueOf(courses.get(i).getSeatNum()));
-            quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
-            if(loggedIn){
-                courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
-            }else{
-                courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
             }
-            loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
+        });
 
-            courseBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #d0baf5;  -fx-padding: 15; -fx-border-radius: 10; ");
+        enrollBtn.setStyle(primaryBtnStlye);
 
-            coursesboxes.getChildren().add(courseBox);
+        loginToEnrollBtn.setStyle(primaryBtnStlye);
+
+        Label quota= new Label("Remaining seats "+String.valueOf(course.getSeatNum()));
+        quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
+        if(loggedIn){
+            courseBox.getChildren().addAll(courseName,courseDescription, quota,courseCategory,courseLevel,courseFee, enrollBtn);
+        }else{
+            courseBox.getChildren().addAll(courseName,courseDescription, quota, courseCategory,courseLevel, courseFee,loginToEnrollBtn);
+        }
+        loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
+
+        courseBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #d0baf5;  -fx-padding: 15; -fx-border-radius: 10; ");
+
+
+
+
+        return courseBox;
+
+    }
+    VBox getCoursesDiaplayList(){
+        coursesboxes.getChildren().clear();
+        filters.getChildren().clear();
+
+        categoryFilter.getItems().setAll(categoryList);
+        //categoryFilter.setValue(categoryFilter.getValue());
+        feeFilter.getItems().setAll(feeList);
+        categoryFilter.setValue("Select Category");
+        feeFilter.setValue("Select Fee Range");
+        levelFilter.getItems().setAll(levelList);
+       
+        filters.getChildren().addAll(categoryFilter,feeFilter, levelFilter);
+        filters.getChildren().add(applyFilters);
+        filters.getChildren().addAll(searchCourse, searchCourseButton);
+        coursesboxes.getChildren().add(filters);
+        AtomicReference<Double> min = new AtomicReference<>((double) 0);
+        AtomicReference<Double> max = new AtomicReference<>((double) 0);
+
+        searchCourseButton.setOnAction(e -> {
+            //new CourseService().searchCourse(Integer.parseInt(searchCourse.getText()));
+            new CourseService().searchCourse(searchCourseButton.getText());
+            coursesboxes.getChildren().clear();
+            filters.getChildren().add(clearFilter);
+            coursesboxes.getChildren().add(filters);
+            //coursesboxes.getChildren().add(getCourseBox(new CourseService().searchCourse(Integer.parseInt(searchCourse.getText()))));
+            coursesboxes.getChildren().add(getCourseBox(new CourseService().searchCourse(searchCourse.getText())));
+
+
+        });
+
+
+
+
+
+
+        applyFilters.setOnAction(e->{
+            String selectedLvlVal=levelFilter.getValue();
+            String categoryVal=categoryFilter.getValue();
+            String feeVal=feeFilter.getValue();
+
+            if(!feeVal.equals("Select Fee Range")&& feeVal!=null){
+                if(feeFilter.getValue().equals("less than 50")){
+                    min.set(0.0);
+                    max.set(50.0);
+                } else if (feeFilter.getValue().equals("50-100")) {
+                    min.set(50.0);
+                    max.set(100.0);
+                }else if (feeFilter.getValue().equals("100-200")) {
+                    min.set(100.0);
+                    max.set(200.0);
+                }else if(feeFilter.getValue().equals("bigger than 200")){
+                    min.set(200.01);
+                    max.set(2000000.0);
+                }
+            }
+
+            if(!categoryVal.equals("Select Category") && categoryVal!=null &&  !feeVal.equals("Select Fee Range")&& feeVal!=null
+            && selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level") ){
+
+                selectedLvlVal=selectedLvlVal.toLowerCase();
+
+                CourseService courseService = new CourseService();
+                coursesboxes.getChildren().clear();
+                courses= courseService.filterByCategoryFeeLevel(categoryFilter.getValue(), min.get(), max.get(), levelFilter.getValue().toLowerCase());
+            }
+
+            else if (!categoryVal.equals("Select Category") && categoryVal !=null && selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level")) {
+
+                selectedLvlVal=selectedLvlVal.toLowerCase();
+
+
+                CourseService courseService = new CourseService();
+                coursesboxes.getChildren().clear();
+
+                courses=courseService.filterByCategoryLevel(categoryVal,selectedLvlVal );
+            }
+            else if (!categoryVal.equals("Select Category") && categoryVal !=null && !feeVal.equals("Select Fee Range") && feeVal!=null) {
+                CourseService courseService = new CourseService();
+                coursesboxes.getChildren().clear();
+
+                courses=courseService.filterByCategoryFee(categoryFilter.getValue(), min, max);
+            }
+
+
+
+            else if(!categoryFilter.getValue().equals("Select Category")){
+                CourseService courseService = new CourseService();
+                coursesboxes.getChildren().clear();
+                courses= courseService.filterByCategory(categoryFilter.getValue());
+            }
+            else{
+                courses= new CourseService().getCourses();
+            }
+            coursesboxes.getChildren().clear();
+            coursesboxes.getChildren().add(filters);
+
+
+            for (int i=0;i<courses.size();i++){
+                coursesboxes.getChildren().add(getCourseBox(courses.get(i)));
+            }
+
+            filters.getChildren().add(clearFilter);
+
+
+
+            //filters
+            //getCoursesDiaplayList();
+
+        });
+        clearFilter.setOnAction(e->{
+            coursesboxes.getChildren().clear();
+            categoryFilter.setValue("Select Category");
+            feeFilter.setValue("Select Fee Range");
+            levelFilter.setValue("Select Level");
+            courses= new CourseService().getCourses();
+            coursesboxes.getChildren().add(filters);
+            for (int i=0;i<courses.size();i++){
+                coursesboxes.getChildren().add(getCourseBox(courses.get(i)));
+            }
+
+        });
+
+
+
+
+        for(int i =0; i < courses.size(); i++){
+            coursesboxes.getChildren().add(getCourseBox(courses.get(i)));
             coursesboxes.setSpacing(10);
             coursesboxes.setPadding(new Insets(10,10,10,10));
             //coursesboxes.set

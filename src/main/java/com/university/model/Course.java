@@ -8,7 +8,7 @@ public class Course {
     private int  seat;
     private double fee;
     private String schedule;
-    private Level level;
+    private Level level= Level.valueOf("beginner");
     private String category;
     private int credits;
 
