@@ -80,21 +80,31 @@ public class EnrollmentService {
             return false;
         }
     }
-    public List<Enrollment> getEnrollments(int studentId, int courseId) {
+    public List<Enrollment> getEnrollments(Integer studentId, Integer courseId) {
+        // use object wrapped integers so that they could be null
         List<Enrollment> enrollments = new ArrayList<>();
-        String sql = "SELECT * FROM enrollment WHERE id_student = ? AND id_course = ?";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.setInt(1, studentId);
-            preparedStatement.setInt(2, courseId);
+        StringBuilder sql = new StringBuilder("SELECT * FROM enrollment WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+        if (studentId != null) {
+            sql.append(" AND id_student = ?");
+            params.add(studentId);
+        }
+        if (courseId != null) {
+            sql.append(" AND id_course = ?");
+            params.add(courseId);
+        }
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement preparedStatement = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                preparedStatement.setObject(i + 1, params.get(i));
+            }
             ResultSet result = preparedStatement.executeQuery();
             while (result.next()) {
-                int enrollmentId = result.getInt("enrollment_id");
-                // These variables were commented out because the exact studentId and courseId are already provided as method parameters
-                // int courseId= result.getInt("id_course");
-                // int studentId = result.getInt("id_student");
+                int enrollmentId = result.getInt("enrollmentId");
+                int currentCourseId = result.getInt("id_course");
+                int currentStudentId = result.getInt("id_student");
                 Enrollment.PaymentStatus paymentStatus = Enrollment.PaymentStatus.valueOf(result.getString("payment_status"));
                 Enrollment.EnrollmentStatus enrollmentStatus = Enrollment.EnrollmentStatus.valueOf(result.getString("enrollment_status"));
-                Enrollment enrollment= new Enrollment(enrollmentId, courseId, studentId, paymentStatus, enrollmentStatus);
+                Enrollment enrollment= new Enrollment(enrollmentId, currentCourseId, currentStudentId, paymentStatus, enrollmentStatus);
                 enrollments.add(enrollment);
             }
 
@@ -122,6 +132,39 @@ public class EnrollmentService {
             throw new RuntimeException(e);
         }
         return enrollmentCount;
+    }
+
+    public boolean updateEnrollmentStatus(int enrollmentId, Enrollment.PaymentStatus paymentStatus, Enrollment.EnrollmentStatus enrollmentStatus) {
+        StringBuilder sql = new StringBuilder("UPDATE enrollment SET ");
+        List<Object> params = new ArrayList<>();
+
+        if (paymentStatus != null) {
+            sql.append("payment_status = ?, ");
+            params.add(paymentStatus.name());
+        }
+        if (enrollmentStatus != null) {
+            sql.append("enrollment_status = ?, ");
+            params.add(enrollmentStatus.name());
+        }
+        // remove the comma and space
+        sql.setLength(sql.length() - 2);
+
+        sql.append(" WHERE enrollmentId = ?");
+        params.add(enrollmentId);
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                preparedStatement.setObject(i + 1, params.get(i));
+            }
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+            return rowsUpdated > 0;
+
+        } catch (Exception e) {
+            System.err.println("Update enrollment failed: " + e.getMessage());
+            return false;
+        }
     }
 
     /*public void addEnrollment(int id_student, int id_course) {
