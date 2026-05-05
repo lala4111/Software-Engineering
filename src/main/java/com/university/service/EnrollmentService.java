@@ -140,20 +140,20 @@ public class EnrollmentService {
     }*/
 
 
-    public void addEnrollment(int id_student, int id_course, Enrollment.PaymentStatus payment_status, Enrollment.EnrollmentStatus enrollment_status) {
-        try(Connection connection= DBConnection.getConnection()) {
-            String sql = "INSERT INTO enrollment(id_student,id_course, payment_status, enrollment_status) VALUES (?, ?, ?, ?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, id_student);
-            preparedStatement.setInt(2, id_course);
-            preparedStatement.setString(3, payment_status.name());
-            preparedStatement.setString(4, enrollment_status.name());
-            preparedStatement.execute();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public void addEnrollment(int id_student, int id_course, Enrollment.PaymentStatus payment_status, Enrollment.EnrollmentStatus enrollment_status) {
+//        try(Connection connection= DBConnection.getConnection()) {
+//            String sql = "INSERT INTO enrollment(id_student,id_course, payment_status, enrollment_status) VALUES (?, ?, ?, ?)";
+//            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+//            preparedStatement.setInt(1, id_student);
+//            preparedStatement.setInt(2, id_course);
+//            preparedStatement.setString(3, payment_status.name());
+//            preparedStatement.setString(4, enrollment_status.name());
+//            preparedStatement.execute();
+//
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 
 }
