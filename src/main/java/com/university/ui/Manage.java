@@ -1,6 +1,6 @@
 package com.university.ui;
 
-import org.example.open_scholars.Course;
+import com.university.model.Course;
 
 import java.util.ArrayList;
 

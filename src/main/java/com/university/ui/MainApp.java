@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -43,7 +44,7 @@ public class MainApp extends Application {
     HBox aboutFooter = new HBox(10);
     Boolean loggedIn = false;
     Boolean sucessfullEnrollment = true;
-    Boolean isAdmin = false;
+    Boolean isAdmin = true;
     int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
     int tempEnrollment_id = 1;
     int numberOfEnrollments = 0;
@@ -66,6 +67,7 @@ public class MainApp extends Application {
             "-fx-text-fill: #12012e; -fx-font-size: 18px;-fx-border-radius: 8; -fx-font-weight:bold";
     //rara part
     Manage archive = new Manage();
+    VBox coursel = new VBox();
     TilePane tp1 = new TilePane();
 
 
@@ -128,15 +130,17 @@ public class MainApp extends Application {
                         Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
                         Integer.parseInt(tx_credit.getText()));
 
-                org.example.open_scholars.Course one = new org.example.open_scholars.Course(
+                Course one = new Course(
                         Integer.parseInt(tx_id.getText()),
-                        tx_name.getText(),ta_description.getText(),
+                        tx_name.getText(),
+                        ta_description.getText(),
                         Integer.parseInt(tx_capacity.getText()),
-                        Integer.parseInt(tx_fee.getText()),
-                        cb_level.getValue(),
+                        Double.parseDouble(tx_fee.getText()),
+                        tx_schedule.getText(),
+                        Course.Level.valueOf(cb_level.getValue()),
                         cb_category.getValue(),
-                        Integer.parseInt(tx_credit.getText()),
-                        tx_schedule.getText()
+                        Integer.parseInt(tx_credit.getText())
+
 
                 );
 
@@ -219,28 +223,53 @@ public class MainApp extends Application {
         return p;
     }
 
-    public Pane tab2(){
-        tp1.setHgap(10);
-        tp1.setVgap(10);
-        tp1.setPadding(new Insets(10));
-        return tp1;
+    public VBox tab2(){
+        TableView<Course> courseList = new TableView<>();
+        TableColumn<Course, Integer> coId = new TableColumn<>("ID");
+        TableColumn<Course, String> coTitle = new TableColumn<>("Title");
+        coTitle.setMinWidth(150);
+        TableColumn<Course, String> coCategory = new TableColumn<>("Category");
+        coCategory.setMinWidth(150);
+        TableColumn<Course, Double> coFee = new TableColumn<>("Fee");
+        TableColumn<Course, Integer> coSeat = new TableColumn<>("Capacity");
+        TableColumn<Course, Integer> coCredit = new TableColumn<>("Credits");
+        TableColumn<Course, String> coSchedule = new TableColumn<>("Schedule");
+        coSchedule.setMinWidth(150);
+        TableColumn<Course, String> coLevel = new TableColumn<>("Level");
+
+        coId.setCellValueFactory(new PropertyValueFactory<Course, Integer>("id"));
+        coTitle.setCellValueFactory(new PropertyValueFactory<Course, String>("title"));
+        coCategory.setCellValueFactory(new PropertyValueFactory<Course, String>("category"));
+        coFee.setCellValueFactory(new PropertyValueFactory<Course, Double>("fee"));
+        coSeat.setCellValueFactory(new PropertyValueFactory<Course, Integer>("capacity"));
+        coCredit.setCellValueFactory(new PropertyValueFactory<Course, Integer>("credit"));
+        coSchedule.setCellValueFactory(new PropertyValueFactory<Course, String>("schedule"));
+        coLevel.setCellValueFactory(new PropertyValueFactory<Course, String>("level"));
+        courseList.getColumns().addAll(coId,coTitle, coCategory,coFee,coSeat,coCredit,coSchedule,coLevel);
+        coursel.getChildren().addAll(courseList);
+        courseList.setOnMouseClicked(event->{
+            Course selected = courseList.getSelectionModel().getSelectedItem();
+            getDetail(selected);
+
+        });
+        return coursel;
     }
 
-    public void getDetail(org.example.open_scholars.Course p){
+    public void getDetail(Course p){
         Stage stage = new Stage();
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(20));
 
         Text t1 = new Text("Course ID: ");
-        TextField tx1 = new TextField(String.valueOf(p.getCourse_id()));
+        TextField tx1 = new TextField(String.valueOf(p.getId()));
         Text t2 =new Text("Course Name: ");
-        TextField tx2 = new TextField(p.getName());
+        TextField tx2 = new TextField(p.getTitle());
         Text t3 =new Text("Capacity: ");
-        TextField tx3 = new TextField(String.valueOf(p.getCapacity()));
+        TextField tx3 = new TextField(String.valueOf(p.getSeatNum()));
         Text t4 =new Text("Fee: ");
         TextField tx4 = new TextField(String.valueOf(p.getFee()));
         Text t5 =new Text("Level: ");
-        TextField tx5 = new TextField(p.getLevel());
+        TextField tx5 = new TextField(String.valueOf(p.getLevel()));
         Text t6 =new Text("Category: ");
         TextField tx6 = new TextField(p.getCategory());
         Text t7 =new Text("Credits: " );
@@ -253,11 +282,11 @@ public class MainApp extends Application {
         Button modi = new Button("Modify");
 
         modi.setOnAction(e->{
-            p.setCourse_id(Integer.parseInt(tx1.getText()));
-            p.setName(tx2.getText());
-            p.setCapacity(Integer.parseInt(tx3.getText()));
+            p.setId(Integer.parseInt(tx1.getText()));
+            p.setTitle(tx2.getText());
+            p.setSeat(Integer.parseInt(tx3.getText()));
             p.setFee(Integer.parseInt(tx4.getText()));
-            p.setLevel(tx5.getText());
+            p.setLevel(Course.Level.valueOf(tx5.getText()));
             p.setCategory(tx6.getText());
             p.setCredits(Integer.parseInt(tx7.getText()));
             p.setSchedule(tx8.getText());
