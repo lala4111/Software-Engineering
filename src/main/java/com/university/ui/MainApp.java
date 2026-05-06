@@ -332,7 +332,7 @@ public class MainApp extends Application {
                 boolean success = enrollmentService.enrollStudent(
                         tempStudent_id,
                         currentCourseId,
-                        Enrollment.PaymentStatus.unpayed,
+                        Enrollment.PaymentStatus.unpaid,
                         Enrollment.EnrollmentStatus.pending
                 );
 
