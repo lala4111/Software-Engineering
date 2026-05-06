@@ -7,7 +7,6 @@ module org.example.open_scholars {
 
 
     opens org.example.open_scholars to javafx.fxml;
-    exports org.example.open_scholars;
     exports com.university.ui;
     opens com.university.ui to javafx.fxml;
 }
