@@ -127,6 +127,8 @@ public class MainApp extends Application {
                 courseService.addCourse(tx_name.getText(),ta_description.getText(),Integer.parseInt(tx_capacity.getText()),
                         Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
                         Integer.parseInt(tx_credit.getText()));
+                //showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful creation", "Course created successfully");
+
 
                 org.example.open_scholars.Course one = new org.example.open_scholars.Course(
                         Integer.parseInt(tx_id.getText()),
@@ -141,6 +143,7 @@ public class MainApp extends Application {
                 );
 
                 archive.setArchive(one);
+
 
                 tx_id.clear();
                 tx_name.clear();
@@ -264,6 +267,8 @@ public class MainApp extends Application {
             p.setDescription(tx9.getText());
 
         });
+        //showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful modification", "Course updated successfully");
+
 
         gp.add(t1,0,0);
         gp.add(tx1,1,0);
@@ -370,9 +375,12 @@ public class MainApp extends Application {
 
             Label quota= new Label("Remaining seats "+String.valueOf(courses.get(i).getSeatNum()));
             quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
-            if(loggedIn){
+            if(loggedIn & !isAdmin){
                 courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
-            }else{
+            } else if (loggedIn& isAdmin) {
+                courseBox.getChildren().addAll(courseName,courseDescription, quota);
+
+            } else{
                 courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
             }
             loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
