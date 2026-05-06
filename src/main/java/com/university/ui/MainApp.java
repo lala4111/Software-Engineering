@@ -2,11 +2,14 @@ package com.university.ui;
 
 import com.university.model.Course;
 import com.university.model.Enrollment;
+import com.university.model.Student;
 import com.university.service.CourseService;
 import com.university.service.EnrollmentService;
 import com.university.service.LogInService;
 import com.university.service.RegisterService;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -15,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -22,6 +26,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.lang.classfile.instruction.NewObjectInstruction;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +36,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
+import javafx.util.Callback;
 
 public class MainApp extends Application {
     BorderPane aLlPages= new BorderPane();
@@ -58,6 +64,10 @@ public class MainApp extends Application {
     //int textFontSize= 24;
     Button logOutButton = new Button("Log Out");
     List<Course> courses = new CourseService().getCourses();
+    List<Enrollment> enrollmentList= new EnrollmentService().getALlEnrollments();
+    Button enrollmentmangement= new Button("Enrollment Mangement");
+    VBox enrollmenBox = new VBox(10);
+    TableView<Enrollment> enrollmentTableView = new TableView<>();
 
 
 
@@ -86,6 +96,8 @@ public class MainApp extends Application {
         t2.setClosable(false);
         t2.setContent(tab2());
         tabs.getTabs().add(t2);
+
+
 
 
         return tabs;
@@ -435,6 +447,75 @@ public class MainApp extends Application {
     public void start(Stage stage) {
         //rara part
         TabPane tabs = tb();
+
+        //https://coderanch.com/t/703498/java/Tableview-show-combobox-edit
+        TableColumn<Enrollment, Integer> column1 =
+                new TableColumn<>("Enrollment ID");
+
+        column1.setCellValueFactory(
+                new PropertyValueFactory<>("enrollmentId"));
+        TableColumn<Enrollment, Integer> column2 =
+                new TableColumn<>("Course ID");
+
+        column2.setCellValueFactory(
+                new PropertyValueFactory<>("id_Course"));
+
+        TableColumn<Enrollment, Integer> column3 =
+                new TableColumn<>("Student ID");
+
+        column3.setCellValueFactory(
+                new PropertyValueFactory<>("id_Student"));
+
+
+
+        TableColumn<Enrollment, String> column4 =
+                new TableColumn<>("Payment status");
+
+        column4.setCellValueFactory(
+                new PropertyValueFactory<>("payment_status"));
+
+        //TableColumn<Object,ComboBox> PriceColumn; PriceColumn = new TableColumn<>("Source");
+
+
+
+        ComboBox<String> testList = new ComboBox<>();
+        String[] testoptions= {"pending", "enrolled", "completed", "dropped"};
+        ObservableList<Enrollment.EnrollmentStatus> testListober = FXCollections.observableArrayList(Enrollment.EnrollmentStatus.values());
+
+
+        TableColumn<Enrollment, Enrollment.EnrollmentStatus> column5 =
+                new TableColumn<>("Enrollment Status");
+        column5.setCellValueFactory(
+                new PropertyValueFactory<>("enrollment_status"));
+
+        column5.setCellFactory(ComboBoxTableCell.forTableColumn(testListober));
+        enrollmentTableView.setEditable(true);
+
+        column5.setEditable(true);
+
+
+
+
+
+
+
+        enrollmentTableView.getColumns().addAll(column1, column2,column3, column4,column5);
+        enrollmentTableView.getItems().setAll(enrollmentList);
+        //tblViewer.getItems().setAll(getAllstudentInfo());
+        //enrollmentTableView.getItems().addAll(enrollmentObservableList);
+
+
+
+        VBox vbox11 = new VBox(enrollmentTableView);
+        enrollmenBox.getChildren().add(vbox11);
+
+
+        aboutPage.getChildren().add(enrollmentmangement);
+
+
+        enrollmentmangement.setOnAction(event -> {
+            aboutPage.getChildren().add(enrollmenBox);
+        });
 
 
 
