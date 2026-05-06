@@ -12,6 +12,7 @@ import java.util.List;
 public class EnrollmentService {
 
     public boolean enrollStudent(int studentId, int courseId, Enrollment.PaymentStatus paymentStatus, Enrollment.EnrollmentStatus enrollmentStatus) {
+        String checkDuplicateSql = "SELECT 1 FROM enrollment WHERE id_student = ? AND id_course = ? AND enrollment_status != 'dropped'";
         // Query and lock the specific course row to prevent other threads from accessing it simultaneously
         // "FOR UPDATE" is for locking
         String checkAndLockSql = "SELECT seat FROM course WHERE id = ? FOR UPDATE";
@@ -24,10 +25,21 @@ public class EnrollmentService {
             // Disable auto-commit to start a manual Database Transaction
             conn.setAutoCommit(false);
 
-            try (PreparedStatement checkStmt = conn.prepareStatement(checkAndLockSql);
+            try (PreparedStatement checkDupStmt = conn.prepareStatement(checkDuplicateSql);
+                 PreparedStatement checkStmt = conn.prepareStatement(checkAndLockSql);
                  PreparedStatement updateStmt = conn.prepareStatement(decreaseSeatSql);
                  PreparedStatement insertStmt = conn.prepareStatement(insertEnrollmentSql)) {
 
+                // check duplicate enrollments
+                checkDupStmt.setInt(1, studentId);
+                checkDupStmt.setInt(2, courseId);
+                ResultSet dupRs = checkDupStmt.executeQuery();
+
+                if (dupRs.next()) {
+                    conn.rollback();
+                    System.out.println("Duplicate enrollment! Student: " + studentId + ", Course: " + courseId);
+                    return false;
+                }
                 // 1. Check seat availability and apply a lock
                 checkStmt.setInt(1, courseId);
                 ResultSet rs = checkStmt.executeQuery();
@@ -102,8 +114,8 @@ public class EnrollmentService {
                 int enrollmentId = result.getInt("enrollmentId");
                 int currentCourseId = result.getInt("id_course");
                 int currentStudentId = result.getInt("id_student");
-                Enrollment.PaymentStatus paymentStatus = Enrollment.PaymentStatus.valueOf(result.getString("payment_status"));
-                Enrollment.EnrollmentStatus enrollmentStatus = Enrollment.EnrollmentStatus.valueOf(result.getString("enrollment_status"));
+                Enrollment.PaymentStatus paymentStatus = Enrollment.PaymentStatus.valueOf(result.getString("payment_status").toLowerCase());
+                Enrollment.EnrollmentStatus enrollmentStatus = Enrollment.EnrollmentStatus.valueOf(result.getString("enrollment_status").toLowerCase());
                 Enrollment enrollment= new Enrollment(enrollmentId, currentCourseId, currentStudentId, paymentStatus, enrollmentStatus);
                 enrollments.add(enrollment);
             }
@@ -118,7 +130,7 @@ public class EnrollmentService {
         // Moving this variable inside the method to make it a Local Variable.
         // each concurrent Thread now receives its own isolated copy, guaranteeing Thread Safety.
         try(Connection connection= DBConnection.getConnection()) {
-            String sql = "select count(*) from enrollment where  id_course=?";
+            String sql = "SELECT count(*) FROM enrollment WHERE id_course = ? AND enrollment_status != 'dropped'";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1,course_id);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -135,6 +147,10 @@ public class EnrollmentService {
     }
 
     public boolean updateEnrollmentStatus(int enrollmentId, Enrollment.PaymentStatus paymentStatus, Enrollment.EnrollmentStatus enrollmentStatus) {
+        if (paymentStatus == null && enrollmentStatus == null){
+            System.out.println("No status update provided for enrollmentId: " + enrollmentId);
+            return false;
+        }
         StringBuilder sql = new StringBuilder("UPDATE enrollment SET ");
         List<Object> params = new ArrayList<>();
 
