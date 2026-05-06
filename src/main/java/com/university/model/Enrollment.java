@@ -8,8 +8,8 @@ public class Enrollment {
     private EnrollmentStatus enrollment_status;
 
     public enum PaymentStatus {
-        unpayed,
-        payed
+        unpaid,
+        paid
     }
 
     public enum EnrollmentStatus {
@@ -32,7 +32,7 @@ public class Enrollment {
     public int getId_Course() {
         return id_course;
     }
-    public void setId_Course(int id_course) {}
+    public void setId_Course(int id_course) {this.id_course = id_course;}
     public int getId_Student() {
         return id_student;
     }
