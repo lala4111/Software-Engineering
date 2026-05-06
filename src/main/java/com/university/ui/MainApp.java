@@ -1,5 +1,6 @@
 package com.university.ui;
 
+import com.university.database.DBConnection;
 import com.university.model.Course;
 import com.university.model.Enrollment;
 import com.university.service.CourseService;
@@ -7,6 +8,9 @@ import com.university.service.EnrollmentService;
 import com.university.service.LogInService;
 import com.university.service.RegisterService;
 import javafx.application.Application;
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -22,8 +26,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
@@ -48,7 +56,10 @@ public class MainApp extends Application {
     int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
     int tempEnrollment_id = 1;
     int numberOfEnrollments = 0;
-    private final EnrollmentService enrollmentService = new EnrollmentService();
+    private final EnrollmentService enrollmentService = new EnrollmentService(
+    );
+    TableView<Course> courseList = new TableView<>();
+    ObservableList<Course> data = FXCollections.observableArrayList();
 
     double screenSize = Screen.getPrimary().getBounds().getWidth();
     //double screenSize = 1100;
@@ -102,7 +113,7 @@ public class MainApp extends Application {
         Text category = new Text("Category");
         Text credit = new Text("Credit");
 
-        TextField tx_id = new TextField();
+        Text id_num = new Text(Integer.toString(courses.getLast().getId() + 1));
         TextField tx_name = new TextField();
         TextArea ta_description= new TextArea();
         ta_description.setPrefColumnCount(5);
@@ -112,7 +123,7 @@ public class MainApp extends Application {
         TextField tx_fee = new TextField();
         TextField tx_schedule = new TextField();
         ChoiceBox<String> cb_level = new ChoiceBox<>();
-        cb_level.getItems().addAll("Select","Beginner","Intermediate", "Advanced");
+        cb_level.getItems().addAll("Select","beginner","intermediate", "advanced");
         cb_level.setValue("Select");
         ChoiceBox<String> cb_category = new ChoiceBox<>();
         cb_category.getItems().addAll("Select","Math", "Physics","IT","Art", "Linguistics","Literature","History");
@@ -131,7 +142,7 @@ public class MainApp extends Application {
                         Integer.parseInt(tx_credit.getText()));
 
                 Course one = new Course(
-                        Integer.parseInt(tx_id.getText()),
+                        Integer.parseInt(id_num.getText()),
                         tx_name.getText(),
                         ta_description.getText(),
                         Integer.parseInt(tx_capacity.getText()),
@@ -144,9 +155,23 @@ public class MainApp extends Application {
 
                 );
 
+                Course table = new Course(
+                        Integer.parseInt(id_num.getText()),
+                        tx_name.getText(),
+                        cb_category.getValue(),
+                        Double.parseDouble(tx_fee.getText()),
+                        Integer.parseInt(tx_capacity.getText()),
+                        Integer.parseInt(tx_credit.getText()),
+                        tx_schedule.getText(),
+                        Course.Level.valueOf(cb_level.getValue())
+                );
+                data.add(table);
+
+                courseList.setItems(data);
+
                 archive.setArchive(one);
 
-                tx_id.clear();
+                id_num.setText(Integer.toString(courses.getLast().getId() + 1));
                 tx_name.clear();
                 ta_description.clear();
                 tx_capacity.clear();
@@ -170,7 +195,7 @@ public class MainApp extends Application {
 
             }
             catch(Exception exception){
-
+                System.out.println(exception);
             }
         });
 
@@ -181,7 +206,7 @@ public class MainApp extends Application {
 
         GridPane gp = new GridPane();
         gp.add(id,0,0);
-        gp.add(tx_id,1,0);
+        gp.add(id_num,1,0);
         gp.add(name,2,0);
         gp.add(tx_name,3,0);
         gp.add(capacity,4,0);
@@ -224,7 +249,31 @@ public class MainApp extends Application {
     }
 
     public VBox tab2(){
-        TableView<Course> courseList = new TableView<>();
+        try(Connection connection= DBConnection.getConnection()) {
+            String sql = "select id,title,seat,fee,schedule,level,category,credits from course";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet rs = preparedStatement.executeQuery(sql);
+            // always returns exactly one row, so an 'if' statement is sufficient instead of a 'while' loop
+            while (rs.next()) {
+                data.add(new Course(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("category"),
+                        rs.getDouble("fee"),
+                        rs.getInt("seat"),
+                        rs.getInt("credits"),
+                        rs.getString("schedule"),
+                        Course.Level.valueOf(rs.getString("level"))
+
+                ));
+            }
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        courseList.setItems(data);
         TableColumn<Course, Integer> coId = new TableColumn<>("ID");
         TableColumn<Course, String> coTitle = new TableColumn<>("Title");
         coTitle.setMinWidth(150);
@@ -235,16 +284,16 @@ public class MainApp extends Application {
         TableColumn<Course, Integer> coCredit = new TableColumn<>("Credits");
         TableColumn<Course, String> coSchedule = new TableColumn<>("Schedule");
         coSchedule.setMinWidth(150);
-        TableColumn<Course, String> coLevel = new TableColumn<>("Level");
+        TableColumn<Course, Course.Level> coLevel = new TableColumn<>("Level");
 
         coId.setCellValueFactory(new PropertyValueFactory<Course, Integer>("id"));
         coTitle.setCellValueFactory(new PropertyValueFactory<Course, String>("title"));
         coCategory.setCellValueFactory(new PropertyValueFactory<Course, String>("category"));
         coFee.setCellValueFactory(new PropertyValueFactory<Course, Double>("fee"));
-        coSeat.setCellValueFactory(new PropertyValueFactory<Course, Integer>("capacity"));
-        coCredit.setCellValueFactory(new PropertyValueFactory<Course, Integer>("credit"));
+        coSeat.setCellValueFactory(new PropertyValueFactory<Course, Integer>("seatNum"));
+        coCredit.setCellValueFactory(new PropertyValueFactory<Course, Integer>("credits"));
         coSchedule.setCellValueFactory(new PropertyValueFactory<Course, String>("schedule"));
-        coLevel.setCellValueFactory(new PropertyValueFactory<Course, String>("level"));
+        coLevel.setCellValueFactory(new PropertyValueFactory<Course, Course.Level>("level"));
         courseList.getColumns().addAll(coId,coTitle, coCategory,coFee,coSeat,coCredit,coSchedule,coLevel);
         coursel.getChildren().addAll(courseList);
         courseList.setOnMouseClicked(event->{
@@ -261,7 +310,7 @@ public class MainApp extends Application {
         gp.setPadding(new Insets(20));
 
         Text t1 = new Text("Course ID: ");
-        TextField tx1 = new TextField(String.valueOf(p.getId()));
+        Text id_num = new Text(String.valueOf(p.getId()));
         Text t2 =new Text("Course Name: ");
         TextField tx2 = new TextField(p.getTitle());
         Text t3 =new Text("Capacity: ");
@@ -280,22 +329,54 @@ public class MainApp extends Application {
         TextField tx9 = new TextField(p.getDescription());
 
         Button modi = new Button("Modify");
+        modi.setStyle("-fx-background-color: #d8b4fe;");
+        Button delete = new Button("Delete");
+
+        Text t10 = new Text("");
+        t10.setFill(Color.RED);
+
 
         modi.setOnAction(e->{
-            p.setId(Integer.parseInt(tx1.getText()));
-            p.setTitle(tx2.getText());
+
+            try{p.setTitle(tx2.getText());
             p.setSeat(Integer.parseInt(tx3.getText()));
-            p.setFee(Integer.parseInt(tx4.getText()));
+            p.setFee((int) Double.parseDouble(tx4.getText()));
             p.setLevel(Course.Level.valueOf(tx5.getText()));
             p.setCategory(tx6.getText());
             p.setCredits(Integer.parseInt(tx7.getText()));
             p.setSchedule(tx8.getText());
             p.setDescription(tx9.getText());
+            courseList.refresh();}
+
+            catch(IllegalArgumentException exception){
+                t10.setText("Please enter correct level");
+
+            }
+
+
+
+
+        });
+
+        delete.setOnAction(de->{
+            Alert conf = new Alert(Alert.AlertType.CONFIRMATION);
+            conf.setTitle("Confirm");
+            conf.setContentText("Are you sure you want to delete this course?");
+            Optional<ButtonType> result = conf.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                CourseService courseService = new CourseService();
+                Course sele = courseList.getSelectionModel().getSelectedItem();
+                courseService.deleteCourse(sele.getId());
+
+            }else {
+
+                System.out.println("Cancel deletion");
+            }
 
         });
 
         gp.add(t1,0,0);
-        gp.add(tx1,1,0);
+        gp.add(id_num,1,0);
         gp.add(t2,0,1);
         gp.add(tx2,1,1);
         gp.add(t3,0,2);
@@ -312,7 +393,9 @@ public class MainApp extends Application {
         gp.add(tx8,1,7);
         gp.add(t9,0,8);
         gp.add(tx9,1,8);
-        gp.add(modi,0,9);
+        gp.add(t10,0,9);
+        gp.add(modi,0,10);
+        gp.add(delete,1,10);
 
         gp.setVgap(5);
         gp.setHgap(5);
@@ -526,7 +609,6 @@ public class MainApp extends Application {
                         "Unsuccessful Login",
                         "Incorrect Username or Password"
                 );
-
 
             }
         });

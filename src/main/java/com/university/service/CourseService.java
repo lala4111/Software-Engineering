@@ -32,11 +32,11 @@ public class CourseService {
                 int seat_number = result.getInt("seat");
                 double  fee=result.getDouble("fee");
                 String schedule= result.getString("schedule");
-                //Course.Level level=Course.Level.valueOf(result.getString("level"));
+                Course.Level level=Course.Level.valueOf(result.getString("level"));
                 String category=result.getString("category");
                 int credits=result.getInt("credits");
 
-                Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule, category, credits );
+                Course course = new Course(course_id,course_name, course_description,level,category,fee, seat_number, credits ,schedule);
                 //Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule, level, category, credits );
                 courses.add(course);
             }
@@ -66,6 +66,18 @@ public class CourseService {
 
             System.out.println("Course added!");
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteCourse(int id){
+        try (Connection connection = DBConnection.getConnection()) {
+            //? to be determined later
+            String sql = "delete from course where  id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
