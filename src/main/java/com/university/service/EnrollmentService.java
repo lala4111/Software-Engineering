@@ -3,6 +3,7 @@ package com.university.service;
 //import com.sun.tools.jconsole.JConsoleContext;
 import com.university.database.DBConnection;
 import com.university.model.Enrollment;
+import javafx.event.ActionEvent;
 import javafx.scene.control.TableColumn;
 
 import java.sql.*;
@@ -136,7 +137,7 @@ public class EnrollmentService {
             ResultSet resultSet = preparedStatement.executeQuery();
             // always returns exactly one row, so an 'if' statement is sufficient instead of a 'while' loop
             if (resultSet.next()) {
-                enrollmentCount = resultSet.getInt(1); // 这里的 1 代表获取第一列的结果
+                enrollmentCount = resultSet.getInt(1);
             }
 
 
