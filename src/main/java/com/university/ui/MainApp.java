@@ -25,7 +25,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.geometry.Pos;
@@ -462,7 +466,7 @@ public class MainApp extends Application {
             boolean success = enrollmentService.enrollStudent(
                     tempStudent_id,
                     currentCourseId,
-                    Enrollment.PaymentStatus.unpayed,
+                    Enrollment.PaymentStatus.unpaid,
                     Enrollment.EnrollmentStatus.pending
             );
 
