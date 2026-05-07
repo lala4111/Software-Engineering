@@ -35,7 +35,6 @@ public class Course {
         this.seat = seat;
         this.fee = fee;
         this.schedule = schedule;
-        this.level = level;
         this.category = category;
         this.credits = credits;
 
@@ -72,4 +71,43 @@ public class Course {
     public Level getLevel() { return level; }
     public String getCategory() { return category; }
     public int getCredits() { return credits; }
+
+    //setter
+    public void setId(int id){
+        this.id = id;
+    }
+
+    public void setTitle(String title){
+        this.title = title;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
+    }
+
+    public void setSeat(int seat){
+        this.seat = seat;
+    }
+
+    public void setFee(int fee){
+        this.fee = fee;
+    }
+
+    public void setSchedule(String schedule){
+        this.schedule = schedule;
+    }
+
+    public void setLevel(Level level){
+        this.level = level;
+    }
+
+    public void setCategory(String category){
+        this.category = category;
+    }
+
+    public void setCredits(int credits){
+        this.credits = credits;
+    }
 }
+
+//testing
