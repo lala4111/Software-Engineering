@@ -140,6 +140,8 @@ public class MainApp extends Application {
                 courseService.addCourse(tx_name.getText(),ta_description.getText(),Integer.parseInt(tx_capacity.getText()),
                         Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
                         Integer.parseInt(tx_credit.getText()));
+                //showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful creation", "Course created successfully");
+
 
                 Course one = new Course(
                         Integer.parseInt(id_num.getText()),
@@ -374,6 +376,8 @@ public class MainApp extends Application {
             }
 
         });
+        //showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful modification", "Course updated successfully");
+
 
         gp.add(t1,0,0);
         gp.add(id_num,1,0);
@@ -444,7 +448,7 @@ public class MainApp extends Application {
                 boolean success = enrollmentService.enrollStudent(
                         tempStudent_id,
                         currentCourseId,
-                        Enrollment.PaymentStatus.unpayed,
+                        Enrollment.PaymentStatus.unpaid,
                         Enrollment.EnrollmentStatus.pending
                 );
 
@@ -482,9 +486,12 @@ public class MainApp extends Application {
 
             Label quota= new Label("Remaining seats "+String.valueOf(courses.get(i).getSeatNum()));
             quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
-            if(loggedIn){
+            if(loggedIn & !isAdmin){
                 courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
-            }else{
+            } else if (loggedIn& isAdmin) {
+                courseBox.getChildren().addAll(courseName,courseDescription, quota);
+
+            } else{
                 courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
             }
             loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
