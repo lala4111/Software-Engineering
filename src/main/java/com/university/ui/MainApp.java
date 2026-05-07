@@ -3,6 +3,7 @@ package com.university.ui;
 import com.university.database.DBConnection;
 import com.university.model.Course;
 import com.university.model.Enrollment;
+import com.university.model.Student;
 import com.university.service.CourseService;
 import com.university.service.EnrollmentService;
 import com.university.service.LogInService;
@@ -18,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -25,6 +27,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.lang.classfile.instruction.NewObjectInstruction;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,6 +38,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
+import javafx.util.Callback;
 
 
 public class MainApp extends Application {
@@ -65,25 +70,10 @@ public class MainApp extends Application {
     //int textFontSize= 24;
     Button logOutButton = new Button("Log Out");
     List<Course> courses = new CourseService().getCourses();
-    HBox filters = new HBox(10);
-    Button applyFilters = new Button("Apply Filters");
-    ComboBox<String> categoryFilter = new ComboBox<>();
-    String[] categories= {"Select Category","Math", "Physics","IT","Art", "Linguistics","Literature","History"};
-    ObservableList<String> categoryList = FXCollections.observableArrayList(categories);
-
-    ComboBox<String> feeFilter = new ComboBox<>();
-    String[] fees= {"Select Fee Range","less than 50", "50-100","100-200","bigger than 200"};
-    ObservableList<String> feeList = FXCollections.observableArrayList(fees);
-
-    ComboBox<String> levelFilter = new ComboBox<>();
-    String[] levels= {"Select Level","Beginner","Intermediate", "Advanced"};
-    ObservableList<String> levelList = FXCollections.observableArrayList(levels);
-    Button clearFilter = new Button("Clear Filter");
-    TextField searchCourse = new TextField("search by course title");
-    Button searchCourseButton = new Button("Search Course");
-
-
-
+    List<Enrollment> enrollmentList= new EnrollmentService().getALlEnrollments();
+    Button enrollmentmangement= new Button("Enrollment Mangement");
+    VBox enrollmenBox = new VBox(10);
+    TableView<Enrollment> enrollmentTableView = new TableView<>();
 
 
 
@@ -112,6 +102,8 @@ public class MainApp extends Application {
         t2.setClosable(false);
         t2.setContent(tab2());
         tabs.getTabs().add(t2);
+
+
 
 
         return tabs;
@@ -438,40 +430,33 @@ public class MainApp extends Application {
         alert.showAndWait();
     }
 
-    public VBox getCourseBox(Course course){
-        VBox courseBox = new VBox(10);
-        Label courseName = new Label("Course Name"+course.getTitle());
-        courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
+//
+    VBox getCoursesDiaplayList(){
+        coursesboxes.getChildren().clear();
 
-        TextArea courseDescription = new TextArea("Description: "+course.getDescription());
-        courseDescription.setWrapText(true);
-        courseDescription.setMaxWidth(Double.MAX_VALUE);
-        courseDescription.setEditable(false);
-        courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
-        Button enrollBtn = new Button("Enroll");
-        Button loginToEnrollBtn = new Button("Login to Enrollment");
-        enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
-        Course currentCourse = course;
-        int currentCourseId= course.getId();
-        Label courseFee= new Label("Course Fee: "+ String.valueOf(currentCourse.getFee()));
-        Label courseLevel= new Label("Course Level: "+ String.valueOf(currentCourse.getLevel()).toLowerCase());
-        Label courseCategory= new Label("Course Category: "+ String.valueOf(currentCourse.getCategory()));
+        for(int i =0; i < courses.size(); i++){
+            VBox courseBox = new VBox(10);
+            Label courseName = new Label("Course Name"+courses.get(i).getTitle());
+            courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
 
+            TextArea courseDescription = new TextArea("Description: "+courses.get(i).getDescription());
+            courseDescription.setWrapText(true);
+            courseDescription.setMaxWidth(Double.MAX_VALUE);
+            courseDescription.setEditable(false);
+            courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
+            Button enrollBtn = new Button("Enroll");
+            Button loginToEnrollBtn = new Button("Login to Enrollment");
+            enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
+            Course currentCourse = courses.get(i);
+            int currentCourseId= courses.get(i).getId();
 
-        enrollBtn.setOnAction(e -> {
-            boolean success = enrollmentService.enrollStudent(
-                    tempStudent_id,
-                    currentCourseId,
-                    Enrollment.PaymentStatus.unpayed,
-                    Enrollment.EnrollmentStatus.pending
-            );
-
-            if (success) {
-                // Enrollment successful
-                showEnrollmentAlert(
-                        Alert.AlertType.INFORMATION,
-                        "Successfully Enrolled",
-                        "You have registered successfully! Please visit the office to confirm your seat within 2 days."
+            int finalI = i;
+            enrollBtn.setOnAction(e -> {
+                boolean success = enrollmentService.enrollStudent(
+                        tempStudent_id,
+                        currentCourseId,
+                        Enrollment.PaymentStatus.unpaid,
+                        Enrollment.EnrollmentStatus.pending
                 );
             } else {
                 // Enrollment failed
@@ -660,6 +645,75 @@ public class MainApp extends Application {
     public void start(Stage stage) {
         //rara part
         TabPane tabs = tb();
+
+        //https://coderanch.com/t/703498/java/Tableview-show-combobox-edit
+        TableColumn<Enrollment, Integer> column1 =
+                new TableColumn<>("Enrollment ID");
+
+        column1.setCellValueFactory(
+                new PropertyValueFactory<>("enrollmentId"));
+        TableColumn<Enrollment, Integer> column2 =
+                new TableColumn<>("Course ID");
+
+        column2.setCellValueFactory(
+                new PropertyValueFactory<>("id_Course"));
+
+        TableColumn<Enrollment, Integer> column3 =
+                new TableColumn<>("Student ID");
+
+        column3.setCellValueFactory(
+                new PropertyValueFactory<>("id_Student"));
+
+
+
+        TableColumn<Enrollment, String> column4 =
+                new TableColumn<>("Payment status");
+
+        column4.setCellValueFactory(
+                new PropertyValueFactory<>("payment_status"));
+
+        //TableColumn<Object,ComboBox> PriceColumn; PriceColumn = new TableColumn<>("Source");
+
+
+
+        ComboBox<String> testList = new ComboBox<>();
+        String[] testoptions= {"pending", "enrolled", "completed", "dropped"};
+        ObservableList<Enrollment.EnrollmentStatus> testListober = FXCollections.observableArrayList(Enrollment.EnrollmentStatus.values());
+
+
+        TableColumn<Enrollment, Enrollment.EnrollmentStatus> column5 =
+                new TableColumn<>("Enrollment Status");
+        column5.setCellValueFactory(
+                new PropertyValueFactory<>("enrollment_status"));
+
+        column5.setCellFactory(ComboBoxTableCell.forTableColumn(testListober));
+        enrollmentTableView.setEditable(true);
+
+        column5.setEditable(true);
+
+
+
+
+
+
+
+        enrollmentTableView.getColumns().addAll(column1, column2,column3, column4,column5);
+        enrollmentTableView.getItems().setAll(enrollmentList);
+        //tblViewer.getItems().setAll(getAllstudentInfo());
+        //enrollmentTableView.getItems().addAll(enrollmentObservableList);
+
+
+
+        VBox vbox11 = new VBox(enrollmentTableView);
+        enrollmenBox.getChildren().add(vbox11);
+
+
+        aboutPage.getChildren().add(enrollmentmangement);
+
+
+        enrollmentmangement.setOnAction(event -> {
+            aboutPage.getChildren().add(enrollmenBox);
+        });
 
 
 

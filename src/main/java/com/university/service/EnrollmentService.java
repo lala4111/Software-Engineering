@@ -184,6 +184,33 @@ public class EnrollmentService {
         }
     }
 
+
+    public List<Enrollment> getALlEnrollments() {
+        // use object wrapped integers so that they could be null
+        List<Enrollment> enrollments = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM enrollment");
+        List<Object> params = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement preparedStatement = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                preparedStatement.setObject(i + 1, params.get(i));
+            }
+            ResultSet result = preparedStatement.executeQuery();
+            while (result.next()) {
+                int enrollmentId = result.getInt("enrollmentId");
+                int currentCourseId = result.getInt("id_course");
+                int currentStudentId = result.getInt("id_student");
+                Enrollment.PaymentStatus paymentStatus = Enrollment.PaymentStatus.valueOf(result.getString("payment_status").toLowerCase());
+                Enrollment.EnrollmentStatus enrollmentStatus = Enrollment.EnrollmentStatus.valueOf(result.getString("enrollment_status").toLowerCase());
+                Enrollment enrollment= new Enrollment(enrollmentId, currentCourseId, currentStudentId, paymentStatus, enrollmentStatus);
+                enrollments.add(enrollment);
+            }
+
+        }
+        catch (Exception e) {System.err.println("Fetch enrollments failed: " + e.getMessage());}
+        return  enrollments;
+
+    }
+
     /*public void addEnrollment(int id_student, int id_course) {
         try(Connection connection= DBConnection.getConnection()) {
             String sql = "INSERT INTO enrollment(id_student,id_course) VALUES (?, ?)";
