@@ -17,7 +17,7 @@ public class RegisterService {
 
             PreparedStatement toCheckU = con.prepareStatement(check2); toCheckU.setString(1, userr);
             ResultSet rs2 = toCheckU.executeQuery();
-            boolean takenU = rs.next();
+            boolean takenU = rs2.next();
 
             if(!takenP && !takenU) {
                 PreparedStatement ps = con.prepareStatement(task);
