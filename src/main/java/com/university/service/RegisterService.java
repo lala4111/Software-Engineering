@@ -9,12 +9,17 @@ public class RegisterService {
         try (Connection con = DBConnection.getConnection()) {
             String task = "INSERT INTO person (username, password, firstName, surname, phone, email, role) VALUES (?,?,?,?,?,?,?)";
             String check = "SELECT 1 FROM person WHERE email = ?";
+            String check2 = "SELECT 1 FROM person WHERE username = ?";
 
-            PreparedStatement toCheck = con.prepareStatement(check); toCheck.setString(1, mail);
-            ResultSet rs = toCheck.executeQuery();
-            boolean taken = rs.next();
+            PreparedStatement toCheckP = con.prepareStatement(check); toCheckP.setString(1, mail);
+            ResultSet rs = toCheckP.executeQuery();
+            boolean takenP = rs.next();
 
-            if(!taken) {
+            PreparedStatement toCheckU = con.prepareStatement(check2); toCheckU.setString(1, userr);
+            ResultSet rs2 = toCheckU.executeQuery();
+            boolean takenU = rs.next();
+
+            if(!takenP && !takenU) {
                 PreparedStatement ps = con.prepareStatement(task);
                 ps.setString(1, userr);
                 ps.setString(2, pass);

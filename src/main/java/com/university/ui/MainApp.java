@@ -551,7 +551,7 @@ public class MainApp extends Application {
                 }else showEnrollmentAlert(
                         Alert.AlertType.ERROR,
                         "Unsuccessful Registration",
-                        "Email might be in use."
+                        "Email or Username might be in use."
                 );
             }
             else showEnrollmentAlert(
