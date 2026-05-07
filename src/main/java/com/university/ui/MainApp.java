@@ -18,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -52,7 +53,7 @@ public class MainApp extends Application {
     HBox aboutFooter = new HBox(10);
     Boolean loggedIn = false;
     Boolean sucessfullEnrollment = true;
-    Boolean isAdmin = true;
+    Boolean isAdmin = false;
     int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
     int tempEnrollment_id = 1;
     int numberOfEnrollments = 0;
@@ -65,8 +66,7 @@ public class MainApp extends Application {
     //double screenSize = 1100;
     double titleFontSize= (int) (screenSize*0.01);
     double textFontSize= (int) (screenSize *0.008);
-    //int titleFontSize= 16;
-    //int textFontSize= 24;
+    double primaryBtnFSize= (int) (screenSize *0.03);
     Button logOutButton = new Button("Log Out");
     List<Course> courses = new CourseService().getCourses();
     HBox filters = new HBox(10);
@@ -86,24 +86,35 @@ public class MainApp extends Application {
     TextField searchCourse = new TextField("search by course title");
     Button searchCourseButton = new Button("Search Course");
 
+    List<Enrollment> enrollmentList= new EnrollmentService().getALlEnrollments();
+    Button enrollmentmangement= new Button("Enrollment Mangement");
+    VBox enrollmenBox = new VBox(10);
+    TableView<Enrollment> enrollmentTableView = new TableView<>();
 
-
+    Button searchbyStdID = new Button("Search by Student ID");
+    TextField stdID = new TextField();
+    Label stdIDLabel = new Label("Student ID");
 
 
 
     String headerButtonStlye= "-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 10; -fx-border-radius: 10;" +
-            "-fx-font-weight:bold; -fx-text-fill: #FFFFFF;"+"-fx-font-size:" +titleFontSize+ "px;";
+            "-fx-font-weight:bold; -fx-text-fill: #FFFFFF;"+"-fx-font-size:" +titleFontSize+ "px; -fx-text-alignment: center;";
     String primaryBtnStlye= "-fx-background-color: white; -fx-background-radius: 7; -fx-border-color: #d0baf5;  -fx-padding: 8 16;" +
             "-fx-text-fill: #12012e; -fx-font-size: 18px;-fx-border-radius: 8; -fx-font-weight:bold";
+    String primaryBtnStlye2= "-fx-background-color: #D0BAF5FF;" +
+            "-fx-text-fill: #12012EFF;  -fx-font-size:titleFontSize+px;-fx-border-radius: 8; -fx-font-weight:bold; -fx-text-alignment: center;";
+    String primaryBtnStlye3= " -fx-text-fill: #12012e; -fx-font-size: 12px;-fx-border-radius: 8; -fx-font-weight:bold";
+
+    String titleStyle= "fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold; -fx-text-alignment: center;";
     //rara part
     Manage archive = new Manage();
     VBox coursel = new VBox();
     TilePane tp1 = new TilePane();
 
 
-
     public TabPane tb () {
         TabPane tabs = new TabPane();
+        tabs.setStyle(primaryBtnStlye3);
         Tab t1 = new Tab();
         t1.setText("Add Course");
         t1.setClosable(false);
@@ -117,12 +128,17 @@ public class MainApp extends Application {
         t2.setContent(tab2());
         tabs.getTabs().add(t2);
 
+        Tab t3 = new Tab();
+        t3.setText("Manage Enrollment");
+        t3.setClosable(false);
+        t3.setContent(enrollmenBox);
+        tabs.getTabs().add(t3);
 
         return tabs;
     }
 
     public Pane tab1(){
-        Text id = new Text("Course ID");
+        //Text id = new Text("Course ID");
         Text name = new Text("Name");
         Text description = new Text("Description");
         Text capacity = new Text("Capacity");
@@ -148,8 +164,6 @@ public class MainApp extends Application {
         cb_category.getItems().addAll("Select","Math", "Physics","IT","Art", "Linguistics","Literature","History");
         cb_category.setValue("Select");
         TextField tx_credit = new TextField();
-
-
         Button add = new Button("Add");
         Button clear = new Button("Clear");
 
@@ -159,7 +173,7 @@ public class MainApp extends Application {
                 courseService.addCourse(tx_name.getText(),ta_description.getText(),Integer.parseInt(tx_capacity.getText()),
                         Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
                         Integer.parseInt(tx_credit.getText()));
-                //showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful creation", "Course created successfully");
+                showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful creation", "Course created successfully");
 
 
                 Course one = new Course(
@@ -202,8 +216,6 @@ public class MainApp extends Application {
                 cb_category.setValue("Select");
                 tx_credit.clear();
 
-
-
                 tp1.setVgap(10);
                 tp1.setHgap(10);
                 tp1.setPrefColumns(3);
@@ -224,24 +236,23 @@ public class MainApp extends Application {
 
         });
 
-
         GridPane gp = new GridPane();
-        gp.add(id,0,0);
-        gp.add(id_num,1,0);
-        gp.add(name,2,0);
-        gp.add(tx_name,3,0);
-        gp.add(capacity,4,0);
-        gp.add(tx_capacity,5,0);
+        //gp.add(id,0,0);
+        //gp.add(id_num,1,0);
+        gp.add(name,0,0);
+        gp.add(tx_name,1,0);
+        gp.add(capacity,2,0);
+        gp.add(tx_capacity,3,0);
         gp.add(fee,0,1);
         gp.add(tx_fee,1,1);
         gp.add(schedule,2,1);
         gp.add(tx_schedule,3,1);
-        gp.add(credit,4,1);
-        gp.add(tx_credit,5,1);
-        gp.add(level,0,2);
-        gp.add(cb_level,1,2);
-        gp.add(category,2,2);
-        gp.add(cb_category,3,2);
+        gp.add(credit,0,2);
+        gp.add(tx_credit,1,2);
+        gp.add(level,2,2);
+        gp.add(cb_level,3,2);
+        gp.add(category,0,3);
+        gp.add(cb_category,1,3);
 
 
         gp.setVgap(10);
@@ -374,9 +385,6 @@ public class MainApp extends Application {
 
             }
 
-
-
-
         });
 
         delete.setOnAction(de->{
@@ -398,8 +406,8 @@ public class MainApp extends Application {
         //showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful modification", "Course updated successfully");
 
 
-        gp.add(t1,0,0);
-        gp.add(id_num,1,0);
+        //gp.add(t1,0,0);
+        //gp.add(id_num,1,0);
         gp.add(t2,0,1);
         gp.add(tx2,1,1);
         gp.add(t3,0,2);
@@ -444,7 +452,9 @@ public class MainApp extends Application {
 
     public VBox getCourseBox(Course course){
         VBox courseBox = new VBox(10);
-        Label courseName = new Label("Course Name"+course.getTitle());
+
+
+        Label courseName = new Label("Course Name: "+course.getTitle());
         courseName.setStyle("fx-text-fill:#12012e;"+ "-fx-font-size:" +titleFontSize+ "px;"+" -fx-font-weight: bold;");
 
         TextArea courseDescription = new TextArea("Description: "+course.getDescription());
@@ -454,7 +464,7 @@ public class MainApp extends Application {
         courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
         Button enrollBtn = new Button("Enroll");
         Button loginToEnrollBtn = new Button("Login to Enrollment");
-        enrollBtn.setStyle("-fx-font-size:" +textFontSize+ "px;");
+
         Course currentCourse = course;
         int currentCourseId= course.getId();
         Label courseFee= new Label("Course Fee: "+ String.valueOf(currentCourse.getFee()));
@@ -504,16 +514,21 @@ public class MainApp extends Application {
 
         Label quota= new Label("Remaining seats "+String.valueOf(course.getSeatNum()));
         quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
-        if(loggedIn){
-            courseBox.getChildren().addAll(courseName,courseDescription, quota,courseCategory,courseLevel,courseFee, enrollBtn);
-        }else{
-            courseBox.getChildren().addAll(courseName,courseDescription, quota, courseCategory,courseLevel, courseFee,loginToEnrollBtn);
+        quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
+        courseCategory.setStyle("-fx-font-size:" +textFontSize+ "px;");
+        courseLevel.setStyle("-fx-font-size:" +textFontSize+ "px;");
+        courseFee.setStyle("-fx-font-size:" +textFontSize+ "px;");
+        if(loggedIn & !isAdmin){
+            courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
+        }  else if (loggedIn& isAdmin) {
+            courseBox.getChildren().addAll(courseName,courseDescription, quota);
+
+        } else{
+            courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
         }
         loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
 
         courseBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #d0baf5;  -fx-padding: 15; -fx-border-radius: 10; ");
-
-
 
 
         return courseBox;
@@ -528,30 +543,45 @@ public class MainApp extends Application {
         feeFilter.getItems().setAll(feeList);
         categoryFilter.setValue("Select Category");
         feeFilter.setValue("Select Fee Range");
-        levelFilter.getItems().setAll(levelList);
+        feeFilter.setStyle(primaryBtnStlye2); categoryFilter.setStyle(primaryBtnStlye2); applyFilters.setStyle(primaryBtnStlye2);
+        levelFilter.getItems().setAll(levelList); clearFilter.setStyle(primaryBtnStlye2); searchCourseButton.setStyle(primaryBtnStlye2);
+        levelFilter.setStyle(primaryBtnStlye2); searchCourse.setStyle(primaryBtnStlye2);
+
+        levelFilter.setValue("Select Level");
        
         filters.getChildren().addAll(categoryFilter,feeFilter, levelFilter);
         filters.getChildren().add(applyFilters);
+        filters.getChildren().add(clearFilter);
         filters.getChildren().addAll(searchCourse, searchCourseButton);
         coursesboxes.getChildren().add(filters);
+        filters.setPadding(new Insets(20));
         AtomicReference<Double> min = new AtomicReference<>((double) 0);
         AtomicReference<Double> max = new AtomicReference<>((double) 0);
 
+        searchCourse.setOnMouseClicked(e -> {searchCourse.clear();});
         searchCourseButton.setOnAction(e -> {
+            Boolean isfound=false;
+
             //new CourseService().searchCourse(Integer.parseInt(searchCourse.getText()));
+            for(Course course: courses){
+                if (searchCourse.getText().trim().equals( course.getTitle())) {isfound=true;}
+            }
             new CourseService().searchCourse(searchCourseButton.getText());
             coursesboxes.getChildren().clear();
-            filters.getChildren().add(clearFilter);
+            //.getChildren().add(clearFilter);
             coursesboxes.getChildren().add(filters);
             //coursesboxes.getChildren().add(getCourseBox(new CourseService().searchCourse(Integer.parseInt(searchCourse.getText()))));
-            coursesboxes.getChildren().add(getCourseBox(new CourseService().searchCourse(searchCourse.getText())));
+            System.out.println(getCourseBox(new CourseService().searchCourse(searchCourse.getText())));
+            if(isfound){
+                coursesboxes.getChildren().add(getCourseBox(new CourseService().searchCourse(searchCourse.getText())));
+                showEnrollmentAlert(Alert.AlertType.CONFIRMATION,"found","corresponding result");
+            }else{
+                showEnrollmentAlert(Alert.AlertType.ERROR,"Not found","please try again, all captial and small letters must match");
+                getCoursesDiaplayList();
+            }
 
 
         });
-
-
-
-
 
 
         applyFilters.setOnAction(e->{
@@ -583,9 +613,7 @@ public class MainApp extends Application {
                 CourseService courseService = new CourseService();
                 coursesboxes.getChildren().clear();
                 courses= courseService.filterByCategoryFeeLevel(categoryFilter.getValue(), min.get(), max.get(), levelFilter.getValue().toLowerCase());
-            }
-
-            else if (!categoryVal.equals("Select Category") && categoryVal !=null && selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level")) {
+            }  else if (!categoryVal.equals("Select Category") && categoryVal !=null && selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level")) {
 
                 selectedLvlVal=selectedLvlVal.toLowerCase();
 
@@ -602,12 +630,32 @@ public class MainApp extends Application {
                 courses=courseService.filterByCategoryFee(categoryFilter.getValue(), min, max);
             }
 
+            if(  !feeVal.equals("Select Fee Range")&& feeVal!=null
+                    && selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level") ){
+
+                selectedLvlVal=selectedLvlVal.toLowerCase();
+
+                CourseService courseService = new CourseService();
+                coursesboxes.getChildren().clear();
+                courses= courseService.filterByFeeLevel( min.get(), max.get(), levelFilter.getValue().toLowerCase());
+            }
+
 
 
             else if(!categoryFilter.getValue().equals("Select Category")){
                 CourseService courseService = new CourseService();
                 coursesboxes.getChildren().clear();
                 courses= courseService.filterByCategory(categoryFilter.getValue());
+            }
+            else if (selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level")) {
+                courses= new CourseService().filterByLevel(selectedLvlVal);
+
+            }
+            else if (!feeVal.equals("Select Fee Range") && feeVal!=null) {
+                CourseService courseService = new CourseService();
+                coursesboxes.getChildren().clear();
+                courses= courseService.filterByPrice(min, max);
+
             }
             else{
                 courses= new CourseService().getCourses();
@@ -620,7 +668,7 @@ public class MainApp extends Application {
                 coursesboxes.getChildren().add(getCourseBox(courses.get(i)));
             }
 
-            filters.getChildren().add(clearFilter);
+            //filters.getChildren().add(clearFilter);
 
 
 
@@ -643,7 +691,6 @@ public class MainApp extends Application {
 
 
 
-
         for(int i =0; i < courses.size(); i++){
             coursesboxes.getChildren().add(getCourseBox(courses.get(i)));
             coursesboxes.setSpacing(10);
@@ -656,19 +703,149 @@ public class MainApp extends Application {
 
 
 
-
-
-
-
     @Override
     public void start(Stage stage) {
         //rara part
         TabPane tabs = tb();
+        tabs.setStyle("-fx-font-weight:bold; -fx-text-fill: #FFFFFF;"+"-fx-font-size:18px;");
+
+        TableColumn<Enrollment, Integer> column1 =
+                new TableColumn<>("Enrollment ID");
+
+        column1.setCellValueFactory(
+                new PropertyValueFactory<>("enrollmentId"));
+        TableColumn<Enrollment, Integer> column2 =
+                new TableColumn<>("Course ID");
+
+        column2.setCellValueFactory(
+                new PropertyValueFactory<>("id_Course"));
+
+        TableColumn<Enrollment, Integer> column3 =
+                new TableColumn<>("Student ID");
+
+        column3.setCellValueFactory(
+                new PropertyValueFactory<>("id_Student"));
+
+
+
+        TableColumn<Enrollment, Enrollment.PaymentStatus> column4 =
+                new TableColumn<>("Payment status");
+
+        column4.setCellValueFactory(
+                new PropertyValueFactory<>("payment_status"));
+        column4.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(Enrollment.PaymentStatus.values())));
+        column4.setOnEditCommit(status -> {
+            ((Enrollment) status.getTableView().getItems()
+                    .get(status.getTablePosition().getRow()))
+                    .setPayment_status(status.getNewValue());
+
+            EnrollmentService enrollmentService = new EnrollmentService();
+            Enrollment enrollment= status.getRowValue();
+            enrollmentService.updateEnrollmentStatus(enrollment.getEnrollmentId(),
+                    enrollment.getPayment_status(), enrollment.getEnrollment_status());
+        });
+
+        column4.setStyle("-fx-alignment: CENTER; -fx-cell-size:40px;");
 
 
 
 
 
+        ComboBox<String> testList = new ComboBox<>();
+        String[] testoptions= {"pending", "enrolled", "completed", "dropped"};
+        ObservableList<Enrollment.EnrollmentStatus> testListober = FXCollections.observableArrayList(Enrollment.EnrollmentStatus.values());
+
+
+        TableColumn<Enrollment, Enrollment.EnrollmentStatus> column5 =
+                new TableColumn<>("Enrollment Status");
+        column5.setCellValueFactory(
+                new PropertyValueFactory<>("enrollment_status"));
+
+        column5.setCellFactory(ComboBoxTableCell.forTableColumn(testListober));
+        column5.setStyle("-fx-cell-size:80px;");
+        column4.setStyle("-fx-cell-size:80px;");
+
+
+
+
+
+        enrollmentTableView.setEditable(true);
+        enrollmentTableView.setFixedCellSize(50);
+        enrollmentTableView.setStyle("-fx-alignment: CENTER;");
+        enrollmentTableView.setMinHeight(50);
+
+        TableColumn<Enrollment, String> column6 =
+                new TableColumn<>("Course Name");
+
+        column6.setCellValueFactory(
+                new PropertyValueFactory<>("courseName"));
+        TableColumn<Enrollment, String> column7 =
+                new TableColumn<>("Student firstName");
+
+        column7.setCellValueFactory(
+                new PropertyValueFactory<>("studentFirstName"));
+
+        TableColumn<Enrollment, String> column8 =
+                new TableColumn<>("Student lastName");
+
+        column8.setCellValueFactory(
+                new PropertyValueFactory<>("studentLastName"));
+
+
+
+        column5.setEditable(true);
+        column5.setOnEditStart(event -> {});
+
+
+        enrollmentTableView.getColumns().addAll(column1, column2,column3, column4,column5, column6, column7, column8);
+        enrollmentTableView.getItems().setAll(enrollmentList);
+        //tblViewer.getItems().setAll(getAllstudentInfo());
+        //enrollmentTableView.getItems().addAll(enrollmentObservableList);
+
+
+        column5.setOnEditCommit(status -> {
+            ((Enrollment) status.getTableView().getItems()
+                    .get(status.getTablePosition().getRow()))
+                    .setEnrollment_status(status.getNewValue());
+
+            EnrollmentService enrollmentService = new EnrollmentService();
+            Enrollment enrollment= status.getRowValue();
+            column5.setEditable(true);
+            enrollmentService.updateEnrollmentStatus(enrollment.getEnrollmentId(),
+                    enrollment.getPayment_status(), enrollment.getEnrollment_status());
+                });
+
+
+
+
+        VBox tablebox = new VBox(enrollmentTableView);
+        HBox searchEnrollment = new HBox(10);
+        searchEnrollment.setAlignment(Pos.TOP_CENTER);
+        searchEnrollment.setSpacing(10);
+        searchEnrollment.setPadding(new Insets(10,10,10,10));
+        stdIDLabel.setStyle(titleStyle);
+        stdID.setStyle(titleStyle);
+
+        searchEnrollment.getChildren().addAll(stdIDLabel, stdID, searchbyStdID);
+        searchbyStdID.setStyle(titleStyle);
+        enrollmenBox.getChildren().add(searchEnrollment);
+        enrollmenBox.getChildren().add(tablebox);
+
+        searchEnrollment.setStyle("-fx-alignment: CENTER;");
+
+        searchbyStdID.setOnAction(event -> {
+            enrollmentTableView.getItems().clear();
+            enrollmentList= new EnrollmentService().searchEnrollment(Integer.parseInt(stdID.getText()));
+            enrollmentTableView.getItems().setAll(enrollmentList);
+            if(stdID.getText()==null || stdID.getText().isEmpty() || !new EnrollmentService().isStdIdExist(Integer.parseInt(stdID.getText()))){
+                showEnrollmentAlert(Alert.AlertType.ERROR, "Invalid Student ID", "Student ID is invalid");
+            }
+
+        });
+
+
+
+        //aboutPage.getChildren().add(enrollmentmangement);
 
 
         ScrollPane scrollPane = new ScrollPane();
@@ -732,6 +909,7 @@ public class MainApp extends Application {
         //PasswordField passwordFd= new PasswordField();
         passwordFd.setPromptText("Password");
         Button logbtn = new Button("Log in");
+        logbtn.setStyle(primaryBtnStlye2);
 
         logbtn.setOnAction(e->{ // log in button
             loggedIn = LogInService.CheckPassword(usernameFd.getText(), passwordFd.getText()); // TODO: make it into a function, check values
@@ -830,18 +1008,9 @@ public class MainApp extends Application {
 
         signUpPage.getChildren().addAll(newUsername,newPassword,againPassword,firstName,surName,phone,email,regBtn);
 
-        /*logOutButton.setOnAction(e->{
-            tempStudent_id = -1;
-            loggedIn = false;
-            header.getChildren().clear();
-            header.getChildren().addAll(homeBtn,aboutBtn, courseBtn, loginBtn,signupBtn);
 
-        });*/
-
-// ================================================================================================================
 
          adminPage.getChildren().add(tabs);
-        //adminPage.getChildren().add(new Label("for admins to manage courses and view and manage students registerations"));
         coursesPage.getChildren().add(new Label("courses page, user view courses"));
         aboutPage.getChildren().add(new Label("information abouty the orgnaization"));
 
@@ -865,8 +1034,7 @@ public class MainApp extends Application {
         aLlPages.setCenter(scrollPane);
         aLlPages.setTop(header);
         aLlPages.setBottom(aboutFooter);
-        //Scene scene = new Scene(root, 400, 300);
-        Scene scene = new Scene(aLlPages, 1000, 800);
+        Scene scene = new Scene(aLlPages, 1000, 900);
         stage.setScene(scene);
         stage.setTitle("Course System");
         stage.show();

@@ -184,36 +184,87 @@ public class EnrollmentService {
         }
     }
 
-    /*public void addEnrollment(int id_student, int id_course) {
-        try(Connection connection= DBConnection.getConnection()) {
-            String sql = "INSERT INTO enrollment(id_student,id_course) VALUES (?, ?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, id_student);
-            preparedStatement.setInt(2, id_course);
-            //preparedStatement.setString(3, payment_status.name());
-            //preparedStatement.setString(4, enrollment_status.name());
-            preparedStatement.execute();
+    public List<Enrollment> getALlEnrollments() {
+        // use object wrapped integers so that they could be null
+        List<Enrollment> enrollments = new ArrayList<>();
+        //StringBuilder sql = new StringBuilder("SELECT * FROM enrollment");
+        StringBuilder sql = new StringBuilder("select e.*, c.title, p.firstName, p.surName from enrollment as e join course as c on e.id_course= c.id join person as p on p.id=e.id_student ;");
+        List<Object> params = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement preparedStatement = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                preparedStatement.setObject(i + 1, params.get(i));
+            }
+            ResultSet result = preparedStatement.executeQuery();
+            while (result.next()) {
+                int enrollmentId = result.getInt("enrollmentId");
+                int currentCourseId = result.getInt("id_course");
+                int currentStudentId = result.getInt("id_student");
+                String courseTitle = result.getString("title");
+                String firstName = result.getString("firstName");
+                String surName = result.getString("surName");
+                Enrollment.PaymentStatus paymentStatus = Enrollment.PaymentStatus.valueOf(result.getString("payment_status").toLowerCase());
+                Enrollment.EnrollmentStatus enrollmentStatus = Enrollment.EnrollmentStatus.valueOf(result.getString("enrollment_status").toLowerCase());
+                Enrollment enrollment= new Enrollment(enrollmentId, currentCourseId, currentStudentId,
+                        paymentStatus, enrollmentStatus, courseTitle,  firstName, surName);
+                enrollments.add(enrollment);
+            }
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
-    }*/
+        catch (Exception e) {System.err.println("Fetch enrollments failed: " + e.getMessage());}
+        return  enrollments;
+
+    }
+
+    public List<Enrollment> searchEnrollment(int studentId) {
+        List<Enrollment> enrollments = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("select e.*, c.title, p.firstName, p.surName from enrollment as e join course as c on e.id_course= c.id join person as p on p.id=e.id_student where id_student= ?");
+        List<Object> params = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(sql.toString())) {
+            preparedStatement.setInt(1,studentId);
+
+            ResultSet result = preparedStatement.executeQuery();
+
+            while (result.next()) {
+                int enrollmentId = result.getInt("enrollmentId");
+                int currentCourseId = result.getInt("id_course");
+                int currentStudentId = result.getInt("id_student");
+                String courseTitle = result.getString("title");
+                String firstName = result.getString("firstName");
+                String surName = result.getString("surName");
+                Enrollment.PaymentStatus paymentStatus = Enrollment.PaymentStatus.valueOf(result.getString("payment_status").toLowerCase());
+                Enrollment.EnrollmentStatus enrollmentStatus = Enrollment.EnrollmentStatus.valueOf(result.getString("enrollment_status").toLowerCase());
+                Enrollment enrollment= new Enrollment(enrollmentId, currentCourseId, currentStudentId,
+                        paymentStatus, enrollmentStatus, courseTitle,  firstName, surName);
+                enrollments.add(enrollment);
+            }
+
+        }
+        catch (Exception e) {System.err.println("Fetch enrollments failed: " + e.getMessage());}
+        return  enrollments;
+
+    }
+
+    public Boolean isStdIdExist(int stdID) {
+        Boolean isExist = false;
+        StringBuilder sql = new StringBuilder("select count(*) from enrollment as e join course as c on e.id_course= c.id join person as p on p.id=e.id_student where id_student= ?");
+        List<Object> params = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(sql.toString())) {
+            preparedStatement.setInt(1,stdID);
+
+            ResultSet result = preparedStatement.executeQuery();
+
+            if(result.next() && result.getInt(1) >0){
+                isExist = true;
+            }
+
+        }
+        catch (Exception e) {System.err.println("Fetch enrollments failed: " + e.getMessage());}
+        return isExist ;
 
 
-//    public void addEnrollment(int id_student, int id_course, Enrollment.PaymentStatus payment_status, Enrollment.EnrollmentStatus enrollment_status) {
-//        try(Connection connection= DBConnection.getConnection()) {
-//            String sql = "INSERT INTO enrollment(id_student,id_course, payment_status, enrollment_status) VALUES (?, ?, ?, ?)";
-//            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-//            preparedStatement.setInt(1, id_student);
-//            preparedStatement.setInt(2, id_course);
-//            preparedStatement.setString(3, payment_status.name());
-//            preparedStatement.setString(4, enrollment_status.name());
-//            preparedStatement.execute();
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    }
 
 
 }

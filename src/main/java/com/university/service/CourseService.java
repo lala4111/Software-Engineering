@@ -102,6 +102,72 @@ public class CourseService {
         return courses;
 
     }
+    // filter by priceRange
+    public List<Course> filterByPrice(AtomicReference<Double> min, AtomicReference<Double> max) {
+        List<Course> courses = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = "SELECT * FROM course WHERE fee > ? and fee < ?";
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setDouble(1, min.get().doubleValue());
+            statement.setDouble(2, max.get().doubleValue());
+
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+
+                int course_id = result.getInt("id");//retrieve by column name
+                String course_name = result.getString("title");//retrieve by column name
+                String course_description = result.getString("description");
+                int seat_number = result.getInt("seat");
+                double  fee=result.getDouble("fee");
+                String schedule= result.getString("schedule");
+                Course.Level level=Course.Level.valueOf(result.getString("level"));
+                String category=result.getString("category");
+                int credits=result.getInt("credits");
+
+                Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule,level, category, credits );
+                courses.add(course);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return courses;
+
+    }
+    // filter by level
+    public List<Course> filterByLevel(String leve) {
+        List<Course> courses = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = "SELECT * FROM course WHERE level=?";
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, leve.toLowerCase());
+
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+
+                int course_id = result.getInt("id");//retrieve by column name
+                String course_name = result.getString("title");//retrieve by column name
+                String course_description = result.getString("description");
+                int seat_number = result.getInt("seat");
+                double  fee=result.getDouble("fee");
+                String schedule= result.getString("schedule");
+                Course.Level level=Course.Level.valueOf(result.getString("level"));
+                String category=result.getString("category");
+                int credits=result.getInt("credits");
+
+                Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule,level, category, credits );
+                courses.add(course);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return courses;
+
+    }
+
+
+
+
+
     //filter by both category and fee
     public List<Course> filterByCategoryFee(String categor, AtomicReference<Double> min, AtomicReference<Double> max) {
         List<Course> courses = new ArrayList<>();
@@ -198,6 +264,38 @@ public class CourseService {
         return courses;
 
     }
+   // filter by price and level
+    public List<Course> filterByFeeLevel( double min, double max, String leve) {
+        List<Course> courses = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = "SELECT * FROM course WHERE fee between ? and ? and level=?";
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setDouble(1,min);
+            statement.setDouble(2,max);
+            statement.setString(3, leve.toLowerCase());
+
+            ResultSet result = statement.executeQuery();
+            while (result.next()) {
+
+                int course_id = result.getInt("id");//retrieve by column name
+                String course_name = result.getString("title");//retrieve by column name
+                String course_description = result.getString("description");
+                int seat_number = result.getInt("seat");
+                double  fee=result.getDouble("fee");
+                String schedule= result.getString("schedule");
+                Course.Level level=Course.Level.valueOf(result.getString("level"));
+                String category=result.getString("category");
+                int credits=result.getInt("credits");
+
+                Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule,level, category, credits );
+                courses.add(course);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return courses;
+
+    }
 
     public Course searchCourse(String titl) {
         //List<Course> courses = new ArrayList<>();
@@ -245,27 +343,5 @@ public class CourseService {
         }
     }
 
-
-    /*public void addCourse(String title, String description, int seat, double fee,  String category,int credits, String schedule) {
-        try (Connection connection = DBConnection.getConnection()) {
-            //? to be determined later
-            String insertStatement = "INSERT INTO course (title ,seat, description, fee, category,credits,schedule) VALUES (?, ?, ?,?,?,?,?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(insertStatement);
-
-            preparedStatement.setString(1, title);// 1 first ? This would set title
-            preparedStatement.setInt(2, seat);// 2 second ? This would set seat
-            preparedStatement.setString(3, description);
-            preparedStatement.setDouble(4, fee);
-            preparedStatement.setString(5, category);
-            preparedStatement.setInt(6, credits);
-            preparedStatement.setString(7, schedule);
-            preparedStatement.executeUpdate();//Returns the number of rows affected by the execution of the SQL statement. Use this method to execute SQL statements for which you expect to get a number of rows affected - for example, an INSERT, UPDATE, or DELETE statement.
-
-            System.out.println("Course added!");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
 
 }
