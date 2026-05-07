@@ -72,7 +72,7 @@ public class CourseService {
             e.printStackTrace();
         }
     }
-
+///
     public List<Course> filterByCategory(String categor) {
         List<Course> courses = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
