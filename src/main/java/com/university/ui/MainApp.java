@@ -353,7 +353,7 @@ public class MainApp extends Application {
         alert.showAndWait();
     }
 
-
+//
     VBox getCoursesDiaplayList(){
         coursesboxes.getChildren().clear();
 
