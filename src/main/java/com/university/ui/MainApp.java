@@ -519,12 +519,12 @@ public class MainApp extends Application {
         courseLevel.setStyle("-fx-font-size:" +textFontSize+ "px;");
         courseFee.setStyle("-fx-font-size:" +textFontSize+ "px;");
         if(loggedIn & !isAdmin){
-            courseBox.getChildren().addAll(courseName,courseDescription, quota, enrollBtn);
+            courseBox.getChildren().addAll(courseName,courseDescription, quota, courseCategory, courseLevel, courseFee, enrollBtn);
         }  else if (loggedIn& isAdmin) {
-            courseBox.getChildren().addAll(courseName,courseDescription, quota);
+            courseBox.getChildren().addAll(courseName,courseDescription, courseCategory, courseLevel, courseFee,quota);
 
         } else{
-            courseBox.getChildren().addAll(courseName,courseDescription, quota, loginToEnrollBtn);
+            courseBox.getChildren().addAll(courseName,courseDescription, courseCategory, courseLevel, courseFee,quota, loginToEnrollBtn);
         }
         loginToEnrollBtn.setOnAction(e -> {aLlPages.setCenter(loginPage);});
 
@@ -905,8 +905,7 @@ public class MainApp extends Application {
         // loginpage and signuppage...
         TextField usernameFd = new TextField();
         usernameFd.setPromptText("Username");
-        TextField passwordFd = new TextField(); // Can be set to PasswordField
-        //PasswordField passwordFd= new PasswordField();
+        PasswordField passwordFd= new PasswordField();
         passwordFd.setPromptText("Password");
         Button logbtn = new Button("Log in");
         logbtn.setStyle(primaryBtnStlye2);
@@ -989,6 +988,7 @@ public class MainApp extends Application {
                         header.getChildren().addAll(homeBtn, aboutBtn, courseBtn, userId, logOutButton);
                         VBox coursesDiaplayList = getCoursesDiaplayList();
                         scrollPane.setContent(coursesDiaplayList);
+                        newUsername.clear(); newPassword.clear(); firstName.clear(); surName.clear(); phone.clear(); email.clear(); againPassword.clear();
                         aLlPages.setCenter(scrollPane);
                     }
                 }else showEnrollmentAlert(
