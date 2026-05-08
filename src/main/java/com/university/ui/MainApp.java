@@ -604,16 +604,20 @@ public class MainApp extends Application {
                     max.set(2000000.0);
                 }
             }
-
-            if(!categoryVal.equals("Select Category") && categoryVal!=null &&  !feeVal.equals("Select Fee Range")&& feeVal!=null
-            && selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level") ){
-
+            Boolean categorySelected=!categoryVal.equals("Select Category") && categoryVal!=null;
+            Boolean feeSelected= !feeVal.equals("Select Fee Range")&& feeVal!=null;
+            Boolean levelSelected= selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level");
+            //filter by category & level & price
+            if( categorySelected&& feeSelected
+            && levelSelected ){
                 selectedLvlVal=selectedLvlVal.toLowerCase();
 
                 CourseService courseService = new CourseService();
                 coursesboxes.getChildren().clear();
-                courses= courseService.filterByCategoryFeeLevel(categoryFilter.getValue(), min.get(), max.get(), levelFilter.getValue().toLowerCase());
-            }  else if (!categoryVal.equals("Select Category") && categoryVal !=null && selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level")) {
+                courses= courseService.filterByCategoryFeeLevel(categoryFilter.getValue(), min.get(), max.get(), selectedLvlVal);
+
+            }//filter by category & level
+            else if (categorySelected && levelSelected) {
 
                 selectedLvlVal=selectedLvlVal.toLowerCase();
 
@@ -623,15 +627,16 @@ public class MainApp extends Application {
 
                 courses=courseService.filterByCategoryLevel(categoryVal,selectedLvlVal );
             }
-            else if (!categoryVal.equals("Select Category") && categoryVal !=null && !feeVal.equals("Select Fee Range") && feeVal!=null) {
+            //filter by category & price
+            else if (categorySelected && feeSelected) {
                 CourseService courseService = new CourseService();
                 coursesboxes.getChildren().clear();
-
                 courses=courseService.filterByCategoryFee(categoryFilter.getValue(), min, max);
             }
+            //filter by price& level
 
-            if(  !feeVal.equals("Select Fee Range")&& feeVal!=null
-                    && selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level") ){
+            else if( feeSelected
+                    && levelSelected ){
 
                 selectedLvlVal=selectedLvlVal.toLowerCase();
 
@@ -641,17 +646,17 @@ public class MainApp extends Application {
             }
 
 
-
-            else if(!categoryFilter.getValue().equals("Select Category")){
+            //filter by category
+            else if(categorySelected){
                 CourseService courseService = new CourseService();
                 coursesboxes.getChildren().clear();
                 courses= courseService.filterByCategory(categoryFilter.getValue());
-            }
-            else if (selectedLvlVal!= null&& !selectedLvlVal.equals("Select Level")) {
+            } //filter by level
+            else if (levelSelected) {
                 courses= new CourseService().filterByLevel(selectedLvlVal);
 
-            }
-            else if (!feeVal.equals("Select Fee Range") && feeVal!=null) {
+            }//filter by price
+            else if (feeSelected) {
                 CourseService courseService = new CourseService();
                 coursesboxes.getChildren().clear();
                 courses= courseService.filterByPrice(min, max);
@@ -668,12 +673,6 @@ public class MainApp extends Application {
                 coursesboxes.getChildren().add(getCourseBox(courses.get(i)));
             }
 
-            //filters.getChildren().add(clearFilter);
-
-
-
-            //filters
-            //getCoursesDiaplayList();
 
         });
         clearFilter.setOnAction(e->{
@@ -748,9 +747,6 @@ public class MainApp extends Application {
         column4.setStyle("-fx-alignment: CENTER; -fx-cell-size:40px;");
 
 
-
-
-
         ComboBox<String> testList = new ComboBox<>();
         String[] testoptions= {"pending", "enrolled", "completed", "dropped"};
         ObservableList<Enrollment.EnrollmentStatus> testListober = FXCollections.observableArrayList(Enrollment.EnrollmentStatus.values());
@@ -815,8 +811,6 @@ public class MainApp extends Application {
                 });
 
 
-
-
         VBox tablebox = new VBox(enrollmentTableView);
         HBox searchEnrollment = new HBox(10);
         searchEnrollment.setAlignment(Pos.TOP_CENTER);
@@ -842,9 +836,6 @@ public class MainApp extends Application {
 
         });
 
-
-
-        //aboutPage.getChildren().add(enrollmentmangement);
 
 
         ScrollPane scrollPane = new ScrollPane();
