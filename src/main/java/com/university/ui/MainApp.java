@@ -378,6 +378,7 @@ public class MainApp extends Application {
             p.setCredits(Integer.parseInt(tx7.getText()));
             p.setSchedule(tx8.getText());
             p.setDescription(tx9.getText());
+            showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "Confirmation", "Course modification successful");
             courseList.refresh();}
 
             catch(IllegalArgumentException exception){
@@ -403,7 +404,6 @@ public class MainApp extends Application {
             }
 
         });
-        //showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful modification", "Course updated successfully");
 
 
         //gp.add(t1,0,0);
@@ -548,7 +548,7 @@ public class MainApp extends Application {
         levelFilter.setStyle(primaryBtnStlye2); searchCourse.setStyle(primaryBtnStlye2);
 
         levelFilter.setValue("Select Level");
-       
+
         filters.getChildren().addAll(categoryFilter,feeFilter, levelFilter);
         filters.getChildren().add(applyFilters);
         filters.getChildren().add(clearFilter);
@@ -799,8 +799,7 @@ public class MainApp extends Application {
 
         enrollmentTableView.getColumns().addAll(column1, column2,column3, column4,column5, column6, column7, column8);
         enrollmentTableView.getItems().setAll(enrollmentList);
-        //tblViewer.getItems().setAll(getAllstudentInfo());
-        //enrollmentTableView.getItems().addAll(enrollmentObservableList);
+
 
 
         column5.setOnEditCommit(status -> {
