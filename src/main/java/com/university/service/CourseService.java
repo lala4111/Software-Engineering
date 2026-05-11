@@ -106,7 +106,7 @@ public class CourseService {
     public List<Course> filterByPrice(AtomicReference<Double> min, AtomicReference<Double> max) {
         List<Course> courses = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
-            String query = "SELECT * FROM course WHERE fee > ? and fee < ?";
+            String query = "SELECT * FROM course WHERE fee >= ? and fee <= ?";
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setDouble(1, min.get().doubleValue());
             statement.setDouble(2, max.get().doubleValue());
@@ -172,7 +172,7 @@ public class CourseService {
     public List<Course> filterByCategoryFee(String categor, AtomicReference<Double> min, AtomicReference<Double> max) {
         List<Course> courses = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
-            String query = "SELECT * FROM course WHERE category = ? and fee > ? and fee < ?";
+            String query = "SELECT * FROM course WHERE category = ? and fee >= ? and fee <= ?";
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, categor);
             statement.setDouble(2, min.get().doubleValue());
