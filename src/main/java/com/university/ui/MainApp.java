@@ -43,7 +43,6 @@ import javafx.stage.Screen;
 
 public class MainApp extends Application {
     BorderPane aLlPages= new BorderPane();
-    VBox homePage = new VBox(10);
     VBox aboutPage = new VBox(10);
     VBox adminPage = new VBox(10);
     VBox coursesPage = new VBox(10);
@@ -52,18 +51,15 @@ public class MainApp extends Application {
     VBox coursesboxes = new VBox();
     HBox aboutFooter = new HBox(10);
     Boolean loggedIn = false;
-    Boolean sucessfullEnrollment = true;
     Boolean isAdmin = false;
     int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
-    int tempEnrollment_id = 1;
-    int numberOfEnrollments = 0;
+
     private final EnrollmentService enrollmentService = new EnrollmentService(
     );
     TableView<Course> courseList = new TableView<>();
     ObservableList<Course> data = FXCollections.observableArrayList();
 
     double screenSize = Screen.getPrimary().getBounds().getWidth();
-    //double screenSize = 1100;
     double titleFontSize= (int) (screenSize*0.01);
     double textFontSize= (int) (screenSize *0.008);
     double primaryBtnFSize= (int) (screenSize *0.03);
@@ -138,7 +134,6 @@ public class MainApp extends Application {
     }
 
     public Pane tab1(){
-        //Text id = new Text("Course ID");
         Text name = new Text("Name");
         Text description = new Text("Description");
         Text capacity = new Text("Capacity");
@@ -173,7 +168,7 @@ public class MainApp extends Application {
                 courseService.addCourse(tx_name.getText(),ta_description.getText(),Integer.parseInt(tx_capacity.getText()),
                         Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
                         Integer.parseInt(tx_credit.getText()));
-                showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "sucessful creation", "Course created successfully");
+                showAlertMessage(Alert.AlertType.CONFIRMATION, "sucessful creation", "Course created successfully");
 
 
                 Course one = new Course(
@@ -206,7 +201,6 @@ public class MainApp extends Application {
 
                 archive.setArchive(one);
 
-                id_num.setText(Integer.toString(courses.getLast().getId() + 1));
                 tx_name.clear();
                 ta_description.clear();
                 tx_capacity.clear();
@@ -228,6 +222,7 @@ public class MainApp extends Application {
 
             }
             catch(Exception exception){
+                showAlertMessage(Alert.AlertType.ERROR, "error", "course creation failed, note: input a number for credit, capacity, fee");
                 System.out.println(exception);
             }
         });
@@ -378,12 +373,13 @@ public class MainApp extends Application {
             p.setCredits(Integer.parseInt(tx7.getText()));
             p.setSchedule(tx8.getText());
             p.setDescription(tx9.getText());
-            showEnrollmentAlert(Alert.AlertType.CONFIRMATION, "Confirmation", "Course modification successful");
+            showAlertMessage(Alert.AlertType.CONFIRMATION, "Confirmation", "Course modification successful");
+            t10.setText("");
             courseList.refresh();}
 
             catch(IllegalArgumentException exception){
-                t10.setText("Please enter correct level");
-
+                t10.setText("Please enter necessary course inputs correctly, input a number for credit, fee and capacity");
+                t10.setWrappingWidth(100);
             }
 
         });
@@ -397,6 +393,7 @@ public class MainApp extends Application {
                 CourseService courseService = new CourseService();
                 Course sele = courseList.getSelectionModel().getSelectedItem();
                 courseService.deleteCourse(sele.getId());
+                courseList.getItems().remove(sele);
 
             }else {
 
@@ -438,7 +435,7 @@ public class MainApp extends Application {
         stage.show();
     }
 
-    private void showEnrollmentAlert(Alert.AlertType type, String title, String content) {
+    private void showAlertMessage(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(title);
@@ -462,6 +459,7 @@ public class MainApp extends Application {
         courseDescription.setMaxWidth(Double.MAX_VALUE);
         courseDescription.setEditable(false);
         courseDescription.setStyle("-fx-font-size:" +textFontSize+ "px;");
+        Label quota= new Label("");
         Button enrollBtn = new Button("Enroll");
         Button loginToEnrollBtn = new Button("Login to Enrollment");
 
@@ -472,6 +470,7 @@ public class MainApp extends Application {
         Label courseCategory= new Label("Course Category: "+ String.valueOf(currentCourse.getCategory()));
 
 
+        Label finalQuota = quota;
         enrollBtn.setOnAction(e -> {
             boolean success = enrollmentService.enrollStudent(
                     tempStudent_id,
@@ -481,25 +480,29 @@ public class MainApp extends Application {
             );
 
             if (success) {
+                course.setSeat(course.getSeatNum() -1);
+                finalQuota.setText("Remaining seats "+String.valueOf(course.getSeatNum()));
                 // Enrollment successful
-                showEnrollmentAlert(
+                showAlertMessage(
                         Alert.AlertType.INFORMATION,
                         "Successfully Enrolled",
                         "You have registered successfully! Please visit the office to confirm your seat within 2 days."
                 );
+
+
             } else {
                 // Enrollment failed
                 // provide specific feedback to the user
                 int currentCount = enrollmentService.getCourseEnrollmentsCount(currentCourseId);
 
                 if (currentCount >= currentCourse.getSeatNum()) {
-                    showEnrollmentAlert(
+                    showAlertMessage(
                             Alert.AlertType.ERROR,
                             "Enrollment Failed",
                             "The course quota is full."
                     );
                 } else {
-                    showEnrollmentAlert(
+                    showAlertMessage(
                             Alert.AlertType.ERROR,
                             "Enrollment Failed",
                             "You have already enrolled for this course or a system error occurred."
@@ -511,8 +514,8 @@ public class MainApp extends Application {
         enrollBtn.setStyle(primaryBtnStlye);
 
         loginToEnrollBtn.setStyle(primaryBtnStlye);
+        quota.setText("Remaining seats "+String.valueOf(course.getSeatNum()));
 
-        Label quota= new Label("Remaining seats "+String.valueOf(course.getSeatNum()));
         quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
         quota.setStyle("-fx-font-size:" +textFontSize+ "px;");
         courseCategory.setStyle("-fx-font-size:" +textFontSize+ "px;");
@@ -574,9 +577,9 @@ public class MainApp extends Application {
             System.out.println(getCourseBox(new CourseService().searchCourse(searchCourse.getText())));
             if(isfound){
                 coursesboxes.getChildren().add(getCourseBox(new CourseService().searchCourse(searchCourse.getText())));
-                showEnrollmentAlert(Alert.AlertType.CONFIRMATION,"found","corresponding result");
+                showAlertMessage(Alert.AlertType.CONFIRMATION,"found","corresponding result");
             }else{
-                showEnrollmentAlert(Alert.AlertType.ERROR,"Not found","please try again, all captial and small letters must match");
+                showAlertMessage(Alert.AlertType.ERROR,"Not found","please try again, all captial and small letters must match");
                 getCoursesDiaplayList();
             }
 
@@ -831,7 +834,7 @@ public class MainApp extends Application {
             enrollmentList= new EnrollmentService().searchEnrollment(Integer.parseInt(stdID.getText()));
             enrollmentTableView.getItems().setAll(enrollmentList);
             if(stdID.getText()==null || stdID.getText().isEmpty() || !new EnrollmentService().isStdIdExist(Integer.parseInt(stdID.getText()))){
-                showEnrollmentAlert(Alert.AlertType.ERROR, "Invalid Student ID", "Student ID is invalid");
+                showAlertMessage(Alert.AlertType.ERROR, "Invalid Student ID", "Student ID is invalid");
             }
 
         });
@@ -925,7 +928,7 @@ public class MainApp extends Application {
                 usernameFd.clear(); passwordFd.clear();
             }
             else {
-                showEnrollmentAlert(
+                showAlertMessage(
                         Alert.AlertType.ERROR,
                         "Unsuccessful Login",
                         "Incorrect Username or Password"
@@ -981,13 +984,13 @@ public class MainApp extends Application {
                         newUsername.clear(); newPassword.clear(); firstName.clear(); surName.clear(); phone.clear(); email.clear(); againPassword.clear();
                         aLlPages.setCenter(scrollPane);
                     }
-                }else showEnrollmentAlert(
+                }else showAlertMessage(
                         Alert.AlertType.ERROR,
                         "Unsuccessful Registration",
                         "Email might be in use."
                 );
             }
-            else showEnrollmentAlert(
+            else showAlertMessage(
                     Alert.AlertType.ERROR,
                     "Unsuccessful Registration",
                     "Make sure you filled out the fields right."

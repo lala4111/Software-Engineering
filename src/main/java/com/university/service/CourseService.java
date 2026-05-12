@@ -39,7 +39,6 @@ public class CourseService {
                 int credits=result.getInt("credits");
 
                 Course course = new Course(course_id,course_name, course_description,level,category,fee, seat_number, credits ,schedule);
-                //Course course = new Course(course_id,course_name, course_description, seat_number,fee,schedule, level, category, credits );
                 courses.add(course);
             }
         } catch (Exception e) {
@@ -200,6 +199,7 @@ public class CourseService {
         return courses;
 
     }
+    //filter by both category, fee and level
 
     public List<Course> filterByCategoryFeeLevel(String categor, double min, double max, String leve) {
         List<Course> courses = new ArrayList<>();
@@ -233,7 +233,7 @@ public class CourseService {
         return courses;
 
     }
-
+    //filter by both category and level
     public List<Course> filterByCategoryLevel(String categor,  String leve) {
         List<Course> courses = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
@@ -296,7 +296,7 @@ public class CourseService {
         return courses;
 
     }
-
+    //search by course title, case senstive
     public Course searchCourse(String titl) {
         //List<Course> courses = new ArrayList<>();
         Course course = null;
