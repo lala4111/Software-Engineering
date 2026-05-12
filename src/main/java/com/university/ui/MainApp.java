@@ -53,7 +53,7 @@ public class MainApp extends Application {
     Boolean loggedIn = false;
     Boolean isAdmin = false;
     int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
-    ScrollPane scrollPane;
+    ScrollPane scrollPane=new ScrollPane();
 
     private final EnrollmentService enrollmentService = new EnrollmentService(
     );
@@ -366,20 +366,35 @@ public class MainApp extends Application {
 
         modi.setOnAction(e->{
 
-            try{p.setTitle(tx2.getText());
-            p.setSeat(Integer.parseInt(tx3.getText()));
-            p.setFee((int) Double.parseDouble(tx4.getText()));
-            p.setLevel(Course.Level.valueOf(tx5.getText()));
-            p.setCategory(tx6.getText());
-            p.setCredits(Integer.parseInt(tx7.getText()));
-            p.setSchedule(tx8.getText());
-            p.setDescription(tx9.getText());
-            showAlertMessage(Alert.AlertType.CONFIRMATION, "Confirmation", "Course modification successful");
-            t10.setText("");
-            courseList.refresh();
-            VBox coursesDiaplayList= getCoursesDiaplayList();
-            scrollPane.setContent(coursesDiaplayList);
-            //aLlPages.setCenter(scrollPane);
+            try{
+                if (tx9.getText()!=null){
+                    new CourseService().updateCourse(tx2.getText(),tx9.getText(),Integer.parseInt(tx3.getText()),
+                            Double.parseDouble(tx4.getText()),tx8.getText(), Course.Level.valueOf(tx5.getText().toLowerCase()), tx6.getText(),
+                            Integer.parseInt(tx7.getText()),Integer.parseInt(id_num.getText()));
+                    showAlertMessage(Alert.AlertType.CONFIRMATION, "Confirmation", "Course modification successful");
+                    p.setTitle(tx2.getText());
+                    p.setSeat(Integer.parseInt(tx3.getText()));
+                    p.setFee((int) Double.parseDouble(tx4.getText()));
+                    p.setLevel(Course.Level.valueOf(tx5.getText()));
+                    p.setCategory(tx6.getText());
+                    p.setCredits(Integer.parseInt(tx7.getText()));
+                    p.setSchedule(tx8.getText());
+                    p.setDescription(tx9.getText());
+                    t10.setText("");
+                    courseList.refresh();
+                    courses= new CourseService().getCourses();
+                    VBox coursesDiaplayList= getCoursesDiaplayList();
+                    scrollPane.setContent(coursesDiaplayList);
+
+                } else if (tx9.getText()==null) {
+                    showAlertMessage(Alert.AlertType.ERROR, "Error", "Course description is empty");
+
+                }
+
+
+
+
+
 
             }
 
@@ -401,6 +416,11 @@ public class MainApp extends Application {
                 Course sele = courseList.getSelectionModel().getSelectedItem();
                 courseService.deleteCourse(sele.getId());
                 courseList.getItems().remove(sele);
+                showAlertMessage(Alert.AlertType.INFORMATION, "Information", "Course deleted successfully");
+                courses= new CourseService().getCourses();
+
+                VBox coursesDiaplayList= getCoursesDiaplayList();
+                scrollPane.setContent(coursesDiaplayList);
 
             }else {
 
@@ -848,8 +868,9 @@ public class MainApp extends Application {
 
 
 
-        scrollPane = new ScrollPane();
+        //scrollPane =
         //scrollPane.setContent(coursesboxes);
+        courses = new CourseService().getCourses();
         scrollPane.setContent(getCoursesDiaplayList());
         HBox header = new HBox();
         header.setSpacing(20);

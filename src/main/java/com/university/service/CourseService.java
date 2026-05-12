@@ -343,5 +343,29 @@ public class CourseService {
         }
     }
 
+    public void updateCourse(String title, String description, int seat, double fee, String schedule, Course.Level level, String category, int credits, int id) {
+        try (Connection connection = DBConnection.getConnection()) {
+            //? to be determined later
+            String insertStatement = "UPDATE course set title = ?, seat = ?, description=?, fee= ? , schedule=?, level=?,  category= ?, credits= ? where id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(insertStatement);
+
+            preparedStatement.setString(1, title);// 1 first ? This would set title
+            preparedStatement.setInt(2, seat);// 2 second ? This would set seat
+            preparedStatement.setString(3, description);
+            preparedStatement.setDouble(4, fee);
+            preparedStatement.setString(5, schedule);
+            preparedStatement.setString(6, level.name());
+            preparedStatement.setString(7, category);
+            preparedStatement.setInt(8, credits);
+            preparedStatement.setInt(9, id);
+            preparedStatement.executeUpdate();/*Returns the number of rows affected by the execution of the SQL statement. Use this method to execute SQL statements for which you expect to get a number of rows affected - for example, an INSERT, UPDATE, or DELETE statement.*/
+
+            System.out.println("Course modified!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
