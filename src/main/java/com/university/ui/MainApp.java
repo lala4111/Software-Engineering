@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -165,11 +166,17 @@ public class MainApp extends Application {
 
         add.setOnAction(e->{
             try{
-                CourseService courseService = new CourseService();
-                courseService.addCourse(tx_name.getText(),ta_description.getText(),Integer.parseInt(tx_capacity.getText()),
-                        Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
-                        Integer.parseInt(tx_credit.getText()));
-                showAlertMessage(Alert.AlertType.CONFIRMATION, "sucessful creation", "Course created successfully");
+                if(!tx_name.getText().isEmpty() || tx_name.getText().length()!=0 ||! tx_name.getText().isBlank()){
+                    CourseService courseService = new CourseService();
+                    courseService.addCourse(tx_name.getText(),ta_description.getText(),Integer.parseInt(tx_capacity.getText()),
+                            Double.parseDouble(tx_fee.getText()),tx_schedule.getText(), Course.Level.valueOf(cb_level.getValue().toLowerCase()), cb_category.getValue(),
+                            Integer.parseInt(tx_credit.getText()));
+                    showAlertMessage(Alert.AlertType.CONFIRMATION, "sucessful creation", "Course created successfully");
+
+                } else if (tx_name.getText().isEmpty() || tx_name.getText().length()==0 || tx_name.getText().isBlank()) {
+                    showAlertMessage(Alert.AlertType.ERROR, "Unsucessful creation", "course name is empty");
+
+                }
 
 
                 Course one = new Course(
@@ -229,6 +236,15 @@ public class MainApp extends Application {
         });
 
         clear.setOnAction(e->{
+            tx_name.clear();
+            ta_description.clear();
+            tx_capacity.clear();
+            tx_fee.clear();
+            tx_schedule.clear();
+            cb_level.setValue("Select");
+            cb_category.setValue("Select");
+            tx_credit.clear();
+
 
         });
 
