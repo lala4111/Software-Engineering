@@ -1017,6 +1017,7 @@ public class MainApp extends Application {
                     !surName.getText().isBlank() || !phone.getText().isBlank() || !email.getText().isBlank()) &&
                     newPassword.getText().equals(againPassword.getText())) { // the first if checks if the spaces are filled and if the passwords match
                 if (RegisterService.AddAccount(newUsername.getText(), newPassword.getText(), firstName.getText(), surName.getText(), phone.getText(), email.getText())) {
+                    showAlertMessage(Alert.AlertType.INFORMATION, "Successfully Registered", "Successfully Registered!");
                     loggedIn = LogInService.CheckPassword(newUsername.getText(), newPassword.getText()); // checks inside if email is fine, adds to the database if it is
                     if (loggedIn) { // same as log in button, might move to a separate method?
                         isAdmin = LogInService.GetPrivilege(newUsername.getText());
