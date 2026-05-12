@@ -53,6 +53,7 @@ public class MainApp extends Application {
     Boolean loggedIn = false;
     Boolean isAdmin = false;
     int tempStudent_id = 2;// temp var and needed to be replaced when the user login logic is ready
+    ScrollPane scrollPane;
 
     private final EnrollmentService enrollmentService = new EnrollmentService(
     );
@@ -375,7 +376,13 @@ public class MainApp extends Application {
             p.setDescription(tx9.getText());
             showAlertMessage(Alert.AlertType.CONFIRMATION, "Confirmation", "Course modification successful");
             t10.setText("");
-            courseList.refresh();}
+            courseList.refresh();
+            VBox coursesDiaplayList= getCoursesDiaplayList();
+            scrollPane.setContent(coursesDiaplayList);
+            //aLlPages.setCenter(scrollPane);
+
+            }
+
 
             catch(IllegalArgumentException exception){
                 t10.setText("Please enter necessary course inputs correctly, input a number for credit, fee and capacity");
@@ -841,7 +848,7 @@ public class MainApp extends Application {
 
 
 
-        ScrollPane scrollPane = new ScrollPane();
+        scrollPane = new ScrollPane();
         //scrollPane.setContent(coursesboxes);
         scrollPane.setContent(getCoursesDiaplayList());
         HBox header = new HBox();
@@ -913,6 +920,7 @@ public class MainApp extends Application {
                 userId.setText("User ID: " + tempStudent_id);
                 header.getChildren().clear();
                 loggedIn= true;
+                //scrollPane.setContent(getCoursesDiaplayList());
                 scrollPane.setContent(coursesboxes);
 
                 if(isAdmin){ // Admin view if true
