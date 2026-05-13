@@ -14,9 +14,9 @@
   * [2. Installation & Setup](#2-installation--setup)
   * [3. Run Locally](#3-run-locally)
 - [Usage](#usage)
-  * [🎓 Student View (User Role)](#-student-view-user-role)
-  * [⚙️ Admin Dashboard (Staff Role)](#-admin-dashboard-staff-role)
-  * [⚠️ Important Notes regarding the MVP Release](#-important-notes-regarding-the-mvp-release)
+  * [Student View (User Role)](#student-view-user-role)
+  * [Admin Dashboard (Staff Role)](#admin-dashboard-staff-role)
+  * [Important Notes regarding the MVP Release](#important-notes-regarding-the-mvp-release)
 - [Roadmap](#roadmap)
 - [Team Members](#team-members)
 ## About the Project
@@ -149,7 +149,7 @@ This application provides distinct interfaces and capabilities based on the user
 
 ---
 
-### 🎓 Student View (User Role)
+### Student View (User Role)
 
 The **Home / Courses** page serves as the main dashboard for students. From here, students as users can browse the catalog, apply filters, search for specific classes, and enroll in courses.
 ![screenshot](screenshots/default_nolog.png)
@@ -178,7 +178,7 @@ The **Home / Courses** page serves as the main dashboard for students. From here
 - The system will display an alert confirming a successful enrollment or indicating a failure (e.g., if you are already enrolled in that course or if the class is at capacity).
 ---
 
-### ⚙️ Admin Dashboard (Staff Role)
+### Admin Dashboard (Staff Role)
 
 Staff members have privileges to manage the course catalog and update student enrollment records.
 - **Note:** When logged in as an Admin, the "Enroll" buttons on the Home/Courses page are hidden, and an **Admindashboard** button appears in the navigation header.
@@ -208,7 +208,7 @@ Staff members have privileges to manage the course catalog and update student en
   - _How to edit:_ **Double-click** directly on the status cell (not the column header) to open a dropdown menu and select the updated status.
 ---
 
-### ⚠️ Important Notes regarding the MVP Release
+### Important Notes regarding the MVP Release
 1. Currently, the **Home** and **Courses** navigation buttons direct to the same primary page.
 2. **Manage Enrollment as an admin:** 
    - If a student makes a new enrollment, it will not dynamically appear in the Admin dashboard if you simply log out as a student then log back in as an admin. You must **restart the application** to fetch the latest records from the database.
