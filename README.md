@@ -151,7 +151,7 @@ This application provides distinct interfaces and capabilities based on the user
 
 ### 🎓 Student View (User Role)
 
-The **Home / Courses** page serves as the main dashboard for students. From here, users can browse the catalog, apply filters, search for specific classes, and manage enrollments.
+The **Home / Courses** page serves as the main dashboard for students. From here, students as users can browse the catalog, apply filters, search for specific classes, and enroll in courses.
 ![screenshot](screenshots/default_nolog.png)
 #### 1. Account Registration
 ![screenshot](screenshots/signup.png)
@@ -209,7 +209,10 @@ Staff members have privileges to manage the course catalog and update student en
 ---
 
 ### Notes regarding the MVP Release
-- Currently, the **Home** and **Courses** navigation buttons direct to the same primary page.
+1. Currently, the **Home** and **Courses** navigation buttons direct to the same primary page.
+2. **Manage Enrollment as an admin:** 
+   - If a student makes a new enrollment, it will not dynamically appear in the Admin dashboard if you simply log out as a student then log back in as an admin. You must **restart the application** to fetch the latest records from the database.
+   - Once you search by a specific `Student ID`, you will need to **restart the application** to view the full list of all student enrollments again. There is currently no "clear filter" button for searching enrollment records by student ID.
 ## Roadmap
 
 * [x] Implement core MVP functionality (Registration, Browsing, Enrollment).
