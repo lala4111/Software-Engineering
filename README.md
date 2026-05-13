@@ -15,8 +15,8 @@
   * [3. Run Locally](#3-run-locally)
 - [Usage](#usage)
   * [🎓 Student View (User Role)](#-student-view-user-role)
-  * [⚙️ Admin Dashboard (Staff Role)](#️-admin-dashboard-staff-role)
-  * [Notes regarding the MVP Release](#️notes-regarding-the-mvp-release)
+  * [⚙️ Admin Dashboard (Staff Role)](#-admin-dashboard-staff-role)
+  * [⚠️ Important Notes regarding the MVP Release](#-important-notes-regarding-the-mvp-release)
 - [Roadmap](#roadmap)
 - [Team Members](#team-members)
 ## About the Project
@@ -208,7 +208,7 @@ Staff members have privileges to manage the course catalog and update student en
   - _How to edit:_ **Double-click** directly on the status cell (not the column header) to open a dropdown menu and select the updated status.
 ---
 
-### Notes regarding the MVP Release
+### ⚠️ Important Notes regarding the MVP Release
 1. Currently, the **Home** and **Courses** navigation buttons direct to the same primary page.
 2. **Manage Enrollment as an admin:** 
    - If a student makes a new enrollment, it will not dynamically appear in the Admin dashboard if you simply log out as a student then log back in as an admin. You must **restart the application** to fetch the latest records from the database.
